@@ -1,0 +1,1122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    
+    <!-- PWA Meta Tags & Manifest -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#0f172a">
+    <link rel="icon" type="image/png" href="https://i.postimg.cc/nL1yRcWv/energy-services.png">
+    <link rel="apple-touch-icon" href="https://i.postimg.cc/nL1yRcWv/energy-services.png">
+    <link rel="manifest" href="data:application/manifest+json;charset=utf-8,%7B%22name%22%3A%22Voltake%20Dashboard%22%2C%22short_name%22%3A%22Voltake%22%2C%22start_url%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%23f8fafc%22%2C%22theme_color%22%3A%22%230f172a%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22https%3A%2F%2Fi.postimg.cc%2FnL1yRcWv%2Fenergy-services.png%22%2C%22sizes%22%3A%22192x192%22%2C%22type%22%3A%22image%2Fpng%22%7D%2C%7B%22src%22%3A%22https%3A%2F%2Fi.postimg.cc%2FnL1yRcWv%2Fenergy-services.png%22%2C%22sizes%22%3A%22512x512%22%2C%22type%22%3A%22image%2Fpng%22%7D%5D%7D">
+
+    <title>OMP GWR Dashboard</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- PapaParse for CSV -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            500: '#0ea5e9',
+                            600: '#0284c7',
+                            900: '#0c4a6e',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Custom Scrollbar for a cleaner look */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1; 
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8; 
+        }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; animation: fadeIn 0.3s ease-in-out; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Hide scrollbar for top header filter on mobile but allow scroll */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: none;  /* Firefox */
+        }
+
+        /* Tech Loading Animations */
+        @keyframes scan {
+            0% { top: -10%; opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { top: 110%; opacity: 0; }
+        }
+        .tech-logo {
+            animation: pulse-glow 2s infinite ease-in-out;
+        }
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 0 15px rgba(14, 165, 233, 0.3); transform: scale(1); }
+            50% { box-shadow: 0 0 40px rgba(14, 165, 233, 0.8); transform: scale(1.05); }
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans h-screen flex overflow-hidden">
+
+    <!-- Mobile Sidebar Backdrop -->
+    <div id="sidebar-backdrop" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-30 hidden md:hidden transition-opacity" onclick="toggleSidebar()"></div>
+
+    <!-- Sidebar -->
+    <aside id="sidebar" class="w-64 bg-slate-900 text-white flex-col shadow-xl z-40 fixed inset-y-0 left-0 transform -translate-x-full md:relative md:translate-x-0 transition-transform duration-300 ease-in-out flex">
+        <div class="p-6 border-b border-slate-800 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="bg-white p-1 rounded-lg w-10 h-10 flex items-center justify-center shrink-0">
+                    <img src="https://i.postimg.cc/nL1yRcWv/energy-services.png" alt="Voltake Logo" class="max-h-full max-w-full">
+                </div>
+                <div>
+                    <h1 class="font-bold text-lg tracking-wide">Voltake</h1>
+                    <p class="text-xs text-slate-400">Field Service Monitor</p>
+                </div>
+            </div>
+            <!-- Close Sidebar button for mobile -->
+            <button onclick="toggleSidebar()" class="md:hidden text-slate-400 hover:text-white p-2">
+                <i class="fa-solid fa-xmark text-xl"></i>
+            </button>
+        </div>
+        
+        <nav class="flex-1 py-4 px-3 space-y-1 overflow-y-auto" id="sidebar-nav">
+            <button onclick="switchTab('overview')" class="nav-btn w-full flex items-center space-x-3 px-4 py-3 text-sm font-medium rounded-lg bg-brand-600 text-white transition-colors" data-target="overview">
+                <i class="fa-solid fa-chart-pie w-5 text-center"></i>
+                <span>Overview</span>
+            </button>
+            <button onclick="switchTab('monitoring')" class="nav-btn w-full flex items-center space-x-3 px-4 py-3 text-sm font-medium rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white transition-colors" data-target="monitoring">
+                <i class="fa-solid fa-table-list w-5 text-center"></i>
+                <span>Job Monitoring</span>
+            </button>
+            <button onclick="switchTab('issues')" class="nav-btn w-full flex items-center space-x-3 px-4 py-3 text-sm font-medium rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white transition-colors" data-target="issues">
+                <i class="fa-solid fa-triangle-exclamation w-5 text-center"></i>
+                <span>Issue & Risk</span>
+            </button>
+            <button onclick="switchTab('performance')" class="nav-btn w-full flex items-center space-x-3 px-4 py-3 text-sm font-medium rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white transition-colors" data-target="performance">
+                <i class="fa-solid fa-users-gear w-5 text-center"></i>
+                <span>Performance</span>
+            </button>
+            <button onclick="switchTab('documents')" class="nav-btn w-full flex items-center space-x-3 px-4 py-3 text-sm font-medium rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white transition-colors" data-target="documents">
+                <i class="fa-solid fa-file-signature w-5 text-center"></i>
+                <span>Document</span>
+            </button>
+        </nav>
+
+        <!-- Back to Form Button -->
+        <div class="px-4 pb-4">
+            <a href="/" class="w-full flex items-center justify-center space-x-2 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white py-2.5 rounded-lg text-sm font-medium transition-colors border border-slate-700 shadow-sm">
+                <i class="fa-solid fa-arrow-left-long"></i>
+                <span>Back to Form</span>
+            </a>
+        </div>
+
+        <div class="p-4 border-t border-slate-800">
+            <div class="flex items-center space-x-3">
+                <div class="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center text-sm font-bold">
+                    AD
+                </div>
+                <div class="text-sm">
+                    <p class="font-medium">Admin User</p>
+                    <p class="text-xs text-slate-400">System Admin</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Sidebar Footer -->
+        <div class="px-4 py-3 bg-slate-950 text-center text-[10px] text-slate-500 border-t border-slate-800">
+            &copy; 2026 All Right Reserved by Voltake
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 flex flex-col h-screen overflow-hidden relative">
+        <!-- Top Header -->
+        <header class="bg-white shadow-sm border-b border-slate-200 py-3 px-4 md:px-6 flex flex-col lg:flex-row lg:justify-between lg:items-center z-10 gap-3">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <button onclick="toggleSidebar()" class="md:hidden text-slate-500 hover:text-slate-800 p-1">
+                        <i class="fa-solid fa-bars text-xl"></i>
+                    </button>
+                    <h2 id="page-title" class="text-lg md:text-xl font-semibold text-slate-800">Overview Dashboard</h2>
+                </div>
+            </div>
+            
+            <div class="flex items-center space-x-2 md:space-x-3 overflow-x-auto pb-1 lg:pb-0 no-scrollbar w-full lg:w-auto">
+                <!-- Global Date Filter -->
+                <div class="flex items-center bg-slate-50 p-1 rounded-md border border-slate-200 shrink-0">
+                    <div class="flex items-center">
+                        <span class="text-xs text-slate-500 mx-1 md:mx-2 font-medium">Mula:</span>
+                        <input type="date" id="date-start" class="text-xs bg-white border border-slate-300 rounded px-1.5 py-1 md:px-2 text-slate-700 outline-none focus:border-brand-500" onchange="applyGlobalDateFilter()">
+                    </div>
+                    <span class="text-xs text-slate-400 mx-1 md:mx-2">-</span>
+                    <div class="flex items-center">
+                        <span class="text-xs text-slate-500 mr-1 md:mr-2 font-medium hidden sm:inline">Akhir:</span>
+                        <input type="date" id="date-end" class="text-xs bg-white border border-slate-300 rounded px-1.5 py-1 md:px-2 text-slate-700 outline-none focus:border-brand-500" onchange="applyGlobalDateFilter()">
+                    </div>
+                    <button onclick="clearDateFilter()" class="text-slate-400 hover:text-red-500 px-2 md:px-3 border-l border-slate-200 ml-1 md:ml-2" title="Reset Filter">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+
+                <div class="text-sm text-slate-500 hidden xl:block shrink-0 px-2">
+                    <i class="fa-regular fa-clock mr-1"></i> <span id="current-time"></span>
+                </div>
+                <button onclick="fetchData()" class="shrink-0 bg-white border border-slate-300 text-slate-700 px-3 py-1.5 rounded-md text-sm font-medium hover:bg-slate-50 transition flex items-center">
+                    <i class="fa-solid fa-rotate-right sm:mr-2 text-brand-500"></i> <span class="hidden sm:inline">Refresh</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Loading Overlay (Digital Tech Style) -->
+        <div id="loading-overlay" class="fixed inset-0 bg-slate-900/85 backdrop-blur-md z-[100] flex flex-col items-center justify-center">
+            <div class="relative flex items-center justify-center mb-8 mt-[-50px]">
+                <!-- Outer spinning rings -->
+                <div class="absolute rounded-full border-t-2 border-r-2 border-brand-500 animate-spin" style="width: 140px; height: 140px;"></div>
+                <div class="absolute rounded-full border-b-2 border-l-2 border-brand-300 animate-[spin_3s_linear_reverse]" style="width: 160px; height: 160px;"></div>
+                
+                <!-- Logo container -->
+                <div class="bg-white p-4 rounded-full w-28 h-28 flex items-center justify-center relative overflow-hidden z-10 tech-logo">
+                    <img src="https://i.postimg.cc/nL1yRcWv/energy-services.png" alt="Voltake Loading" class="w-full h-full object-contain relative z-10">
+                    <!-- Scanning line -->
+                    <div class="absolute left-0 right-0 h-[2px] bg-brand-400 opacity-60 shadow-[0_0_12px_3px_#0ea5e9] animate-[scan_1.5s_linear_infinite] z-20"></div>
+                </div>
+            </div>
+            
+            <div class="flex flex-col items-center">
+                <h3 class="text-brand-400 font-bold tracking-[0.2em] uppercase text-sm mb-3 animate-pulse">System Initializing</h3>
+                <div class="flex space-x-2">
+                    <div class="w-2 h-2 bg-brand-500 rounded-full animate-bounce" style="animation-delay: 0s"></div>
+                    <div class="w-2 h-2 bg-brand-500 rounded-full animate-bounce" style="animation-delay: 0.2s"></div>
+                    <div class="w-2 h-2 bg-brand-500 rounded-full animate-bounce" style="animation-delay: 0.4s"></div>
+                </div>
+                <p class="text-slate-400 text-xs mt-4 font-mono">Syncing securely with database...</p>
+            </div>
+        </div>
+
+        <!-- Scrollable Content Area -->
+        <div class="flex-1 overflow-y-auto p-6">
+            
+            <!-- TAB 1: OVERVIEW -->
+            <div id="tab-overview" class="tab-content active">
+                <!-- KPI Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                    <div class="bg-white rounded-xl shadow-sm border border-slate-100 p-6 flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-slate-500 mb-1">Total Reports</p>
+                            <h3 class="text-3xl font-bold text-slate-800" id="kpi-total">-</h3>
+                        </div>
+                        <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center text-xl">
+                            <i class="fa-solid fa-clipboard-list"></i>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-xl shadow-sm border border-slate-100 p-6 flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-slate-500 mb-1">Completed Jobs</p>
+                            <h3 class="text-3xl font-bold text-emerald-600" id="kpi-completed">-</h3>
+                        </div>
+                        <div class="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-full flex items-center justify-center text-xl">
+                            <i class="fa-solid fa-check-double"></i>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-xl shadow-sm border border-slate-100 p-6 flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-slate-500 mb-1">Pending Approval</p>
+                            <h3 class="text-3xl font-bold text-amber-500" id="kpi-pending">-</h3>
+                        </div>
+                        <div class="w-12 h-12 bg-amber-50 text-amber-500 rounded-full flex items-center justify-center text-xl">
+                            <i class="fa-solid fa-clock-rotate-left"></i>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-xl shadow-sm border border-slate-100 p-6 flex items-center justify-between cursor-pointer hover:border-red-200 transition" onclick="switchTab('issues')">
+                        <div>
+                            <p class="text-sm font-medium text-slate-500 mb-1">Unresolved Issues</p>
+                            <h3 class="text-3xl font-bold text-red-500" id="kpi-issues">-</h3>
+                        </div>
+                        <div class="w-12 h-12 bg-red-50 text-red-500 rounded-full flex items-center justify-center text-xl">
+                            <i class="fa-solid fa-triangle-exclamation"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Charts Area -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+                    <!-- Status Chart -->
+                    <div class="bg-white rounded-xl shadow-sm border border-slate-100 p-6">
+                        <h3 class="text-base font-semibold text-slate-800 mb-4">Jobs by Status</h3>
+                        <div class="relative h-64 w-full flex justify-center">
+                            <canvas id="statusChart"></canvas>
+                        </div>
+                    </div>
+                    <!-- Activity Chart -->
+                    <div class="bg-white rounded-xl shadow-sm border border-slate-100 p-6 lg:col-span-2">
+                        <h3 class="text-base font-semibold text-slate-800 mb-4">Report Submissions (Last 7 Days)</h3>
+                        <div class="relative h-64 w-full">
+                            <canvas id="trendChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Activity Table -->
+                <div class="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden">
+                    <div class="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+                        <h3 class="text-base font-semibold text-slate-800">Recent Reports</h3>
+                        <button onclick="switchTab('monitoring')" class="text-sm text-brand-600 hover:text-brand-800 font-medium">View All &rarr;</button>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm text-left">
+                            <thead class="text-xs text-slate-500 uppercase bg-slate-50">
+                                <tr>
+                                    <th class="px-6 py-3 font-medium">Date/Time</th>
+                                    <th class="px-6 py-3 font-medium">Project</th>
+                                    <th class="px-6 py-3 font-medium">Client</th>
+                                    <th class="px-6 py-3 font-medium">Staff</th>
+                                    <th class="px-6 py-3 font-medium">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="recent-table-body" class="divide-y divide-slate-100">
+                                <!-- Populated by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 2: JOB MONITORING -->
+            <div id="tab-monitoring" class="tab-content">
+                <div class="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden flex flex-col h-full">
+                    <!-- Filters -->
+                    <div class="p-6 border-b border-slate-100 bg-slate-50/50">
+                        <div class="flex flex-col md:flex-row gap-4 items-end">
+                            <div class="flex-1 w-full">
+                                <label class="block text-xs font-medium text-slate-500 mb-1">Search Project/Client</label>
+                                <div class="relative">
+                                    <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                                        <i class="fa-solid fa-search text-slate-400"></i>
+                                    </div>
+                                    <input type="text" id="search-job" class="bg-white border border-slate-300 text-slate-900 text-sm rounded-lg focus:ring-brand-500 focus:border-brand-500 block w-full pl-10 p-2.5" placeholder="Search..." onkeyup="filterJobs()">
+                                </div>
+                            </div>
+                            <div class="w-full md:w-48">
+                                <label class="block text-xs font-medium text-slate-500 mb-1">Status Filter</label>
+                                <select id="filter-status" class="bg-white border border-slate-300 text-slate-900 text-sm rounded-lg focus:ring-brand-500 focus:border-brand-500 block w-full p-2.5" onchange="filterJobs()">
+                                    <option value="">All Statuses</option>
+                                    <!-- Populated by JS -->
+                                </select>
+                            </div>
+                            <button onclick="filterJobs()" class="bg-slate-800 hover:bg-slate-900 text-white px-5 py-2.5 rounded-lg text-sm font-medium transition">
+                                Filter
+                            </button>
+                        </div>
+                    </div>
+                    <!-- Table -->
+                    <div class="overflow-x-auto flex-1">
+                        <table class="w-full text-sm text-left">
+                            <thead class="text-xs text-slate-500 uppercase bg-slate-100 sticky top-0 z-10 shadow-sm">
+                                <tr>
+                                    <th class="px-6 py-4 font-medium whitespace-nowrap">Report ID</th>
+                                    <th class="px-6 py-4 font-medium whitespace-nowrap">Date</th>
+                                    <th class="px-6 py-4 font-medium">Client / Project</th>
+                                    <th class="px-6 py-4 font-medium">Location</th>
+                                    <th class="px-6 py-4 font-medium">Time (In-Out)</th>
+                                    <th class="px-6 py-4 font-medium">Staff In-Charge</th>
+                                    <th class="px-6 py-4 font-medium">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="monitoring-table-body" class="divide-y divide-slate-100 bg-white">
+                                <!-- Populated by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 3: ISSUE & RISK -->
+            <div id="tab-issues" class="tab-content">
+                <div class="mb-6 flex justify-between items-end">
+                    <div>
+                        <h3 class="text-lg font-semibold text-slate-800">Unresolved Issues Log</h3>
+                        <p class="text-sm text-slate-500 mt-1">Jobs requiring immediate attention or follow-up.</p>
+                    </div>
+                    <div class="bg-red-50 text-red-600 px-4 py-2 rounded-lg font-bold text-sm border border-red-100 flex items-center">
+                        <i class="fa-solid fa-circle-exclamation mr-2"></i>
+                        <span id="issue-count-badge">0</span> Active Issues
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 gap-4" id="issues-container">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+
+            <!-- TAB 4: PERFORMANCE -->
+            <div id="tab-performance" class="tab-content">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                    <!-- Staff Performance Chart -->
+                    <div class="bg-white rounded-xl shadow-sm border border-slate-100 p-6">
+                        <h3 class="text-base font-semibold text-slate-800 mb-4">Jobs Completed by Staff</h3>
+                        <div class="relative h-72 w-full">
+                            <canvas id="staffChart"></canvas>
+                        </div>
+                    </div>
+                    
+                    <!-- Client Distribution -->
+                    <div class="bg-white rounded-xl shadow-sm border border-slate-100 p-6">
+                        <h3 class="text-base font-semibold text-slate-800 mb-4">Top Clients Distribution</h3>
+                        <div class="relative h-72 w-full">
+                            <canvas id="clientChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Staff Table -->
+                <div class="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden">
+                    <div class="px-6 py-4 border-b border-slate-100 bg-slate-50/50">
+                        <h3 class="text-base font-semibold text-slate-800">Staff Workload Summary</h3>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm text-left">
+                            <thead class="text-xs text-slate-500 uppercase bg-slate-50">
+                                <tr>
+                                    <th class="px-6 py-3 font-medium">Staff Name</th>
+                                    <th class="px-6 py-3 font-medium">Position</th>
+                                    <th class="px-6 py-3 font-medium text-center">Total Jobs</th>
+                                    <th class="px-6 py-3 font-medium">Recent Job Date</th>
+                                </tr>
+                            </thead>
+                            <tbody id="staff-table-body" class="divide-y divide-slate-100">
+                                <!-- Populated by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 5: DOCUMENT -->
+            <div id="tab-documents" class="tab-content">
+                <div class="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden">
+                    <div class="p-6 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center">
+                        <h3 class="text-base font-semibold text-slate-800">Document & Approval Tracking</h3>
+                        <div class="flex space-x-2">
+                             <input type="text" id="search-doc" class="bg-white border border-slate-300 text-slate-900 text-sm rounded-lg focus:ring-brand-500 focus:border-brand-500 block w-64 p-2" placeholder="Search Report ID..." onkeyup="filterDocs()">
+                        </div>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm text-left">
+                            <thead class="text-xs text-slate-500 uppercase bg-slate-100">
+                                <tr>
+                                    <th class="px-6 py-4 font-medium">Report Info</th>
+                                    <th class="px-6 py-4 font-medium">Client PIC</th>
+                                    <th class="px-6 py-4 font-medium">Draft PDF</th>
+                                    <th class="px-6 py-4 font-medium">Approval Status</th>
+                                    <th class="px-6 py-4 font-medium">Final PDF</th>
+                                    <th class="px-6 py-4 font-medium text-right">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="document-table-body" class="divide-y divide-slate-100">
+                                <!-- Populated by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer for Main Content (Visible on Mobile) -->
+            <footer class="mt-8 pt-4 pb-2 text-center md:hidden">
+                <p class="text-xs text-slate-400">&copy; 2026 All Right Reserved by Voltake</p>
+            </footer>
+
+        </div>
+    </main>
+
+    <script>
+        // Data Source
+        const SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQlcSLYtFaYCQ5urEIjQuF0LXkdvk_mSfRAM7UBnGSSBHOLzz5XuxQEl51XCR6m8qRgx5P9LrFlZBIo/pub?output=csv;
+        
+        // Global State
+        let globalData = [];
+        let dateFilteredData = [];
+        let charts = {};
+
+        // Utility: Update Clock
+        setInterval(() => {
+            const now = new Date();
+            document.getElementById('current-time').innerText = now.toLocaleString('en-MY', { 
+                weekday: 'short', year: 'numeric', month: 'short', day: 'numeric', 
+                hour: '2-digit', minute:'2-digit'
+            });
+        }, 1000);
+
+        // Utility: Status Badge Styling
+        function getStatusBadge(status) {
+            const s = status ? status.toLowerCase() : '';
+            if(s.includes('complete') || s.includes('approved')) return `<span class="px-2.5 py-1 text-xs font-medium rounded-full bg-emerald-100 text-emerald-700 border border-emerald-200">${status || 'Completed'}</span>`;
+            if(s.includes('pending') || s.includes('draft')) return `<span class="px-2.5 py-1 text-xs font-medium rounded-full bg-amber-100 text-amber-700 border border-amber-200">${status || 'Pending'}</span>`;
+            if(s.includes('cancel') || s.includes('reject')) return `<span class="px-2.5 py-1 text-xs font-medium rounded-full bg-red-100 text-red-700 border border-red-200">${status || 'Rejected'}</span>`;
+            return `<span class="px-2.5 py-1 text-xs font-medium rounded-full bg-slate-100 text-slate-700 border border-slate-200">${status || 'N/A'}</span>`;
+        }
+
+        // Mobile Sidebar Toggle Logic
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const backdrop = document.getElementById('sidebar-backdrop');
+            
+            if (sidebar.classList.contains('-translate-x-full')) {
+                // Open Sidebar
+                sidebar.classList.remove('-translate-x-full');
+                backdrop.classList.remove('hidden');
+                backdrop.classList.add('block');
+            } else {
+                // Close Sidebar
+                sidebar.classList.add('-translate-x-full');
+                backdrop.classList.add('hidden');
+                backdrop.classList.remove('block');
+            }
+        }
+
+        // Initialize App
+        document.addEventListener('DOMContentLoaded', () => {
+            // Setup Chart.js Defaults
+            Chart.defaults.font.family = 'Inter, sans-serif';
+            Chart.defaults.color = '#64748b';
+            
+            fetchData();
+        });
+
+        // Tab Switching Logic
+        function switchTab(tabId) {
+            // Update UI title
+            const titles = {
+                'overview': 'Overview Dashboard',
+                'monitoring': 'Job Monitoring',
+                'issues': 'Issue & Risk Management',
+                'performance': 'Staff & Client Performance',
+                'documents': 'Document & Approval'
+            };
+            document.getElementById('page-title').innerText = titles[tabId];
+
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            // Show target tab
+            document.getElementById(`tab-${tabId}`).classList.add('active');
+
+            // Update sidebar active states
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                if(btn.dataset.target === tabId) {
+                    btn.className = "nav-btn w-full flex items-center space-x-3 px-4 py-3 text-sm font-medium rounded-lg bg-brand-600 text-white transition-colors shadow-md";
+                } else {
+                    btn.className = "nav-btn w-full flex items-center space-x-3 px-4 py-3 text-sm font-medium rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white transition-colors";
+                }
+            });
+
+            // Re-render specific tab needs if required (e.g. chart resizing)
+            if(tabId === 'performance') {
+                if(charts.staff) charts.staff.update();
+                if(charts.client) charts.client.update();
+            }
+
+            // Close sidebar automatically on mobile after clicking a tab
+            if (window.innerWidth < 768) {
+                const sidebar = document.getElementById('sidebar');
+                if (!sidebar.classList.contains('-translate-x-full')) {
+                    toggleSidebar();
+                }
+            }
+        }
+
+        // Fetch Data via PapaParse
+        function fetchData() {
+            document.getElementById('loading-overlay').style.display = 'flex';
+            
+            Papa.parse(SHEET_CSV_URL, {
+                download: true,
+                header: true,
+                skipEmptyLines: true,
+                complete: function(results) {
+                    globalData = results.data;
+                    // Sort data by Date/Timestamp descending (newest first) only once
+                    globalData.sort((a, b) => new Date(b.Timestamp || b.Date) - new Date(a.Timestamp || a.Date));
+                    
+                    applyGlobalDateFilter(); // This will filter and then call processData
+                    
+                    document.getElementById('loading-overlay').style.display = 'none';
+                },
+                error: function(err) {
+                    console.error("Error fetching CSV:", err);
+                    alert("Failed to load data. Please check connection or Sheet visibility.");
+                    document.getElementById('loading-overlay').style.display = 'none';
+                }
+            });
+        }
+
+        // Apply Date Filter Globally
+        function applyGlobalDateFilter() {
+            const startVal = document.getElementById('date-start').value;
+            const endVal = document.getElementById('date-end').value;
+
+            if (!startVal && !endVal) {
+                dateFilteredData = [...globalData];
+            } else {
+                const start = startVal ? new Date(startVal) : new Date('1970-01-01');
+                const end = endVal ? new Date(endVal) : new Date('2099-12-31');
+                end.setHours(23, 59, 59, 999);
+                start.setHours(0, 0, 0, 0);
+
+                dateFilteredData = globalData.filter(row => {
+                    const rowDateStr = row.Date || row.Timestamp;
+                    if (!rowDateStr) return false;
+
+                    let parsedDate = new Date(rowDateStr);
+                    // Try parsing DD/MM/YYYY if standard parsing fails
+                    if (isNaN(parsedDate.getTime()) && rowDateStr.includes('/')) {
+                        const parts = rowDateStr.split(/[/\s:-]/);
+                        if (parts.length >= 3) {
+                            parsedDate = new Date(`${parts[2].substring(0,4)}-${parts[1]}-${parts[0]}`);
+                        }
+                    }
+
+                    if (isNaN(parsedDate.getTime())) return true; // Keep row if date is totally unparseable
+
+                    return parsedDate >= start && parsedDate <= end;
+                });
+            }
+
+            processData(dateFilteredData);
+            
+            // Re-apply sub-filters for specific tabs
+            filterJobs();
+            filterDocs();
+        }
+
+        function clearDateFilter() {
+            document.getElementById('date-start').value = '';
+            document.getElementById('date-end').value = '';
+            applyGlobalDateFilter();
+        }
+
+        // Process and Render all components
+        function processData(data) {
+            renderOverview(data);
+            renderJobMonitoring(data);
+            renderIssues(data);
+            renderPerformance(data);
+            renderDocuments(data);
+            
+            // Populate Dropdown Filters based on ALL data to keep status options consistent
+            populateFilters(globalData);
+        }
+
+        // ----- RENDER OVERVIEW -----
+        function renderOverview(data) {
+            // KPIs
+            const total = data.length;
+            const completed = data.filter(d => (d.Status || '').toLowerCase().includes('complet') || (d.Status || '').toLowerCase().includes('approv')).length;
+            const pending = data.filter(d => (d.Status || '').toLowerCase().includes('pend') || (d.Status || '').toLowerCase().includes('draft')).length;
+            
+            // Unresolved Issues logic (Not empty, not '-', not 'none', not 'n/a')
+            const hasIssue = (val) => {
+                const v = (val || '').trim().toLowerCase();
+                return v !== '' && v !== '-' && v !== 'none' && v !== 'n/a' && v !== 'nil';
+            };
+            const issuesCount = data.filter(d => hasIssue(d.UnresolvedIssue)).length;
+
+            // Animate Numbers
+            document.getElementById('kpi-total').innerText = total;
+            document.getElementById('kpi-completed').innerText = completed;
+            document.getElementById('kpi-pending').innerText = pending;
+            document.getElementById('kpi-issues').innerText = issuesCount;
+
+            // Recent Reports Table (Top 5)
+            const tbody = document.getElementById('recent-table-body');
+            tbody.innerHTML = '';
+            data.slice(0, 5).forEach(row => {
+                tbody.innerHTML += `
+                    <tr class="hover:bg-slate-50 transition">
+                        <td class="px-6 py-3 whitespace-nowrap">
+                            <div class="font-medium text-slate-800">${row.Date || '-'}</div>
+                            <div class="text-xs text-slate-500">${row.TimeIn || ''}</div>
+                        </td>
+                        <td class="px-6 py-3">
+                            <div class="font-medium text-slate-800">${row.ProjectTitle || '-'}</div>
+                            <div class="text-xs text-slate-500 text-truncate w-48">${row.JobDesc || ''}</div>
+                        </td>
+                        <td class="px-6 py-3 text-slate-600">${row.ClientCompany || '-'}</td>
+                        <td class="px-6 py-3">
+                            <div class="text-slate-800">${row.StaffName || '-'}</div>
+                        </td>
+                        <td class="px-6 py-3">${getStatusBadge(row.Status)}</td>
+                    </tr>
+                `;
+            });
+
+            // Status Pie Chart
+            const statusCounts = {};
+            data.forEach(d => {
+                const s = d.Status || 'Unknown';
+                statusCounts[s] = (statusCounts[s] || 0) + 1;
+            });
+            
+            if(charts.status) charts.status.destroy();
+            const ctxStatus = document.getElementById('statusChart').getContext('2d');
+            charts.status = new Chart(ctxStatus, {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(statusCounts),
+                    datasets: [{
+                        data: Object.values(statusCounts),
+                        backgroundColor: ['#0ea5e9', '#10b981', '#f59e0b', '#f43f5e', '#64748b'],
+                        borderWidth: 0,
+                        hoverOffset: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom', labels: { boxWidth: 12 } }
+                    },
+                    cutout: '70%'
+                }
+            });
+
+            // Trend Chart (Reports per day, last 7 unique dates)
+            const datesCount = {};
+            data.forEach(d => {
+                if(d.Date) datesCount[d.Date] = (datesCount[d.Date] || 0) + 1;
+            });
+            const sortedDates = Object.keys(datesCount).sort((a,b) => new Date(a) - new Date(b)).slice(-10); // Last 10 days
+            
+            if(charts.trend) charts.trend.destroy();
+            const ctxTrend = document.getElementById('trendChart').getContext('2d');
+            
+            // Create Gradient
+            const gradient = ctxTrend.createLinearGradient(0, 0, 0, 400);
+            gradient.addColorStop(0, 'rgba(14, 165, 233, 0.5)');   
+            gradient.addColorStop(1, 'rgba(14, 165, 233, 0.0)');
+
+            charts.trend = new Chart(ctxTrend, {
+                type: 'line',
+                data: {
+                    labels: sortedDates,
+                    datasets: [{
+                        label: 'Jobs Executed',
+                        data: sortedDates.map(date => datesCount[date]),
+                        borderColor: '#0284c7',
+                        backgroundColor: gradient,
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.4,
+                        pointBackgroundColor: '#0284c7',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2,
+                        pointRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { beginAtZero: true, grid: { borderDash: [4, 4], color: '#f1f5f9' }, ticks: { stepSize: 1 } },
+                        x: { grid: { display: false } }
+                    }
+                }
+            });
+        }
+
+        // ----- RENDER JOB MONITORING -----
+        function renderJobMonitoring(data) {
+            const tbody = document.getElementById('monitoring-table-body');
+            tbody.innerHTML = '';
+            
+            if(data.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" class="px-6 py-8 text-center text-slate-500">No records found.</td></tr>`;
+                return;
+            }
+
+            data.forEach(row => {
+                tbody.innerHTML += `
+                    <tr class="hover:bg-slate-50 border-b border-slate-50 transition group">
+                        <td class="px-6 py-4 font-medium text-brand-600 whitespace-nowrap">
+                            ${row.ReportID || '-'}
+                            <div class="text-[10px] text-slate-400 font-normal uppercase mt-0.5">PO: ${row.PONumber || 'N/A'}</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-slate-800">${row.Date || '-'}</div>
+                        </td>
+                        <td class="px-6 py-4">
+                            <div class="font-bold text-slate-800">${row.ClientCompany || '-'}</div>
+                            <div class="text-xs text-slate-500 line-clamp-1" title="${row.ProjectTitle}">${row.ProjectTitle || '-'}</div>
+                        </td>
+                        <td class="px-6 py-4 text-slate-600 text-sm">
+                            <i class="fa-solid fa-location-dot text-slate-400 mr-1"></i> ${row.Location || '-'}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="bg-slate-100 px-2 py-1 rounded inline-block text-xs font-mono text-slate-600">
+                                ${row.TimeIn || '--:--'} <i class="fa-solid fa-arrow-right text-[10px] mx-1"></i> ${row.TimeOut || '--:--'}
+                            </div>
+                        </td>
+                        <td class="px-6 py-4">
+                            <div class="flex items-center">
+                                <div class="w-6 h-6 rounded-full bg-brand-100 text-brand-600 flex items-center justify-center text-xs font-bold mr-2">
+                                    ${row.StaffName ? row.StaffName.charAt(0) : '?'}
+                                </div>
+                                <div>
+                                    <div class="text-slate-800 font-medium text-sm">${row.StaffName || '-'}</div>
+                                    <div class="text-[10px] text-slate-500">${row.StaffPosition || ''}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4">
+                            ${getStatusBadge(row.Status)}
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        function populateFilters(data) {
+            const statuses = new Set();
+            data.forEach(d => {
+                if(d.Status) statuses.add(d.Status);
+            });
+            const filterSelect = document.getElementById('filter-status');
+            filterSelect.innerHTML = '<option value="">All Statuses</option>';
+            statuses.forEach(s => {
+                filterSelect.innerHTML += `<option value="${s}">${s}</option>`;
+            });
+        }
+
+        function filterJobs() {
+            const searchVal = document.getElementById('search-job').value.toLowerCase();
+            const statusVal = document.getElementById('filter-status').value.toLowerCase();
+            
+            // Use dateFilteredData instead of globalData
+            const filteredData = dateFilteredData.filter(row => {
+                const matchSearch = 
+                    (row.ProjectTitle || '').toLowerCase().includes(searchVal) || 
+                    (row.ClientCompany || '').toLowerCase().includes(searchVal) ||
+                    (row.ReportID || '').toLowerCase().includes(searchVal);
+                
+                const matchStatus = statusVal === '' || (row.Status || '').toLowerCase() === statusVal;
+                
+                return matchSearch && matchStatus;
+            });
+            
+            renderJobMonitoring(filteredData);
+        }
+
+        // ----- RENDER ISSUES -----
+        function renderIssues(data) {
+            const container = document.getElementById('issues-container');
+            container.innerHTML = '';
+            
+            const hasIssue = (val) => {
+                const v = (val || '').trim().toLowerCase();
+                return v !== '' && v !== '-' && v !== 'none' && v !== 'n/a' && v !== 'nil';
+            };
+            
+            const issueData = data.filter(d => hasIssue(d.UnresolvedIssue));
+            document.getElementById('issue-count-badge').innerText = issueData.length;
+
+            if(issueData.length === 0) {
+                container.innerHTML = `
+                    <div class="bg-white rounded-xl p-10 text-center border border-slate-100 shadow-sm">
+                        <div class="w-16 h-16 bg-emerald-50 text-emerald-500 rounded-full flex items-center justify-center text-2xl mx-auto mb-4">
+                            <i class="fa-solid fa-shield-check"></i>
+                        </div>
+                        <h4 class="text-lg font-medium text-slate-800">All Clear!</h4>
+                        <p class="text-slate-500 mt-1">There are no unresolved issues reported at the moment.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            issueData.forEach(row => {
+                container.innerHTML += `
+                    <div class="bg-white rounded-lg p-5 border-l-4 border-red-500 shadow-sm flex flex-col md:flex-row gap-4 hover:shadow-md transition">
+                        <div class="flex-1">
+                            <div class="flex items-center space-x-2 mb-2">
+                                <span class="bg-slate-100 text-slate-700 text-xs font-mono px-2 py-0.5 rounded">${row.ReportID || 'No ID'}</span>
+                                <span class="text-xs text-slate-500"><i class="fa-regular fa-calendar mr-1"></i> ${row.Date || '-'}</span>
+                                <span class="text-xs text-brand-600 font-medium bg-brand-50 px-2 py-0.5 rounded">${row.ClientCompany || '-'}</span>
+                            </div>
+                            <h4 class="font-bold text-slate-800 mb-1">${row.ProjectTitle || 'Unnamed Project'}</h4>
+                            <div class="bg-red-50 text-red-800 p-3 rounded-md text-sm border border-red-100 mb-3">
+                                <strong class="text-red-900 block mb-1"><i class="fa-solid fa-triangle-exclamation mr-1"></i> Issue Reported:</strong>
+                                ${row.UnresolvedIssue}
+                            </div>
+                            <p class="text-sm text-slate-600"><strong>Remarks:</strong> ${row.Remarks || 'No remarks provided.'}</p>
+                        </div>
+                        <div class="w-full md:w-64 bg-slate-50 p-4 rounded-lg flex flex-col justify-center border border-slate-100">
+                            <p class="text-xs text-slate-500 uppercase tracking-wide mb-1">Reported By</p>
+                            <p class="font-medium text-slate-800">${row.StaffName || 'Unknown Staff'}</p>
+                            <p class="text-xs text-slate-500 mb-3">${row.StaffPosition || '-'}</p>
+                            
+                            <p class="text-xs text-slate-500 uppercase tracking-wide mb-1">Client PIC</p>
+                            <p class="font-medium text-slate-800 text-sm">${row.PICName || '-'}</p>
+                            <p class="text-xs text-blue-600"><i class="fa-solid fa-phone text-[10px] mr-1"></i>${row.PICPhone || '-'}</p>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        // ----- RENDER PERFORMANCE -----
+        function renderPerformance(data) {
+            // Aggregate Staff Data
+            const staffStats = {};
+            data.forEach(d => {
+                if(!d.StaffName) return;
+                const name = d.StaffName;
+                if(!staffStats[name]) {
+                    staffStats[name] = { count: 0, position: d.StaffPosition || '-', lastDate: d.Date };
+                }
+                staffStats[name].count++;
+                // Keep the most recent date
+                if(new Date(d.Date) > new Date(staffStats[name].lastDate)) {
+                    staffStats[name].lastDate = d.Date;
+                }
+            });
+
+            // Populate Table
+            const tbody = document.getElementById('staff-table-body');
+            tbody.innerHTML = '';
+            
+            // Convert to array and sort by count desc
+            const staffArray = Object.keys(staffStats).map(name => ({
+                name, ...staffStats[name]
+            })).sort((a,b) => b.count - a.count);
+
+            staffArray.forEach(staff => {
+                tbody.innerHTML += `
+                    <tr class="hover:bg-slate-50">
+                        <td class="px-6 py-4 font-medium text-slate-800 flex items-center">
+                            <div class="w-8 h-8 rounded-full bg-slate-200 text-slate-600 flex items-center justify-center text-xs font-bold mr-3">
+                                ${staff.name.charAt(0)}
+                            </div>
+                            ${staff.name}
+                        </td>
+                        <td class="px-6 py-4 text-slate-600">${staff.position}</td>
+                        <td class="px-6 py-4 text-center">
+                            <span class="bg-brand-50 text-brand-700 font-bold px-3 py-1 rounded-full border border-brand-100">${staff.count}</span>
+                        </td>
+                        <td class="px-6 py-4 text-slate-500">${staff.lastDate || '-'}</td>
+                    </tr>
+                `;
+            });
+
+            // Chart: Staff Workload
+            const ctxStaff = document.getElementById('staffChart').getContext('2d');
+            if(charts.staff) charts.staff.destroy();
+            charts.staff = new Chart(ctxStaff, {
+                type: 'bar',
+                data: {
+                    labels: staffArray.map(s => s.name.split(' ')[0]), // Use first name for space
+                    datasets: [{
+                        label: 'Jobs Handled',
+                        data: staffArray.map(s => s.count),
+                        backgroundColor: '#3b82f6',
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: { y: { beginAtZero: true, grid: { borderDash: [4, 4] } }, x: { grid: { display: false } } }
+                }
+            });
+
+            // Chart: Client Distribution
+        const clientStats = {};
+        data.forEach(d => {
+            if(d.ClientCompany) {
+                clientStats[d.ClientCompany] = (clientStats[d.ClientCompany] || 0) + 1;
+            }
+        });
+        // Top 5 clients + Others
+        let clientArr = Object.keys(clientStats).map(c => ({name: c, count: clientStats[c]})).sort((a,b) => b.count - a.count);
+        let labels = [];
+        let counts = [];
+        if(clientArr.length > 5) {
+            labels = clientArr.slice(0,5).map(c => c.name.substring(0, 15) + (c.name.length > 15 ? '...' : ''));
+            counts = clientArr.slice(0,5).map(c => c.count);
+            const others = clientArr.slice(5).reduce((sum, c) => sum + c.count, 0);
+            labels.push('Others');
+            counts.push(others);
+        } else {
+            labels = clientArr.map(c => c.name);
+            counts = clientArr.map(c => c.count);
+        }
+
+        const ctxClient = document.getElementById('clientChart').getContext('2d');
+        if(charts.client) charts.client.destroy();
+        charts.client = new Chart(ctxClient, {
+            type: 'pie',
+            data: {
+                labels: labels,
+                datasets: [{
+                    data: counts,
+                    backgroundColor: ['#0ea5e9', '#8b5cf6', '#10b981', '#f59e0b', '#64748b', '#cbd5e1'],
+                    borderWidth: 2, borderColor: '#ffffff'
+                }]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                plugins: { legend: { position: 'right', labels: { boxWidth: 12, font: {size: 11} } } }
+            }
+        });
+    }
+
+    // Utility for PDF Links
+    function getPdfUrl(idOrUrl) {
+        if (!idOrUrl) return '#';
+        // Check if it's already a full URL
+        if (idOrUrl.startsWith('http')) return idOrUrl;
+        // Otherwise assume it is a Google Drive File ID
+        return `https://drive.google.com/file/d/${idOrUrl}/view`;
+    }
+
+    // Utility for WhatsApp Phone Number Formatting
+    function formatPhoneForWa(phone) {
+        if (!phone) return '';
+        // Remove spaces, dashes, parentheses
+        let cleaned = phone.replace(/[\s\-\(\)]/g, '');
+        // If it starts with 0 (Malaysia), replace with 60
+        if (cleaned.startsWith('0')) {
+            cleaned = '60' + cleaned.substring(1);
+        }
+        return cleaned;
+    }
+
+    // ----- RENDER DOCUMENTS -----
+    function renderDocuments(data) {
+        const tbody = document.getElementById('document-table-body');
+        tbody.innerHTML = '';
+        
+        data.forEach(row => {
+            // Determine Doc Status
+            const hasDraft = !!(row.DraftPdfId && row.DraftPdfId.trim() !== '');
+            const hasFinal = !!(row.FinalPdfId && row.FinalPdfId.trim() !== '');
+            const isApproved = (row.Status || '').toLowerCase() === 'approved' || (row.Status || '').toLowerCase() === 'completed';
+
+            // PDF Links
+            const draftUrl = hasDraft ? getPdfUrl(row.DraftPdfId.trim()) : '#';
+            const finalUrl = hasFinal ? getPdfUrl(row.FinalPdfId.trim()) : '#';
+
+            // Message Templates logic
+            const clientName = row.ClientSignName || row.PICName || 'Tuan/Puan';
+            const projectName = row.ProjectTitle || 'projek berkaitan';
+            const rawPhone = row.ClientPhone || row.PICPhone || '';
+            const waPhone = formatPhoneForWa(rawPhone);
+            const emailAddr = row.ClientEmail || '';
+            
+            let subject = '';
+            let bodyMsg = '';
+
+            if (isApproved) {
+                subject = `GWR Selesai - ${row.ReportID}`;
+                bodyMsg = `Hi ${clientName},\n\nTerima kasih kerana telah menyemak dan menandatangani GWR untuk projek ${projectName}.\n\nAnda boleh merujuk salinan akhir kerja anda.\n\nTerima kasih dari Voltake.`;
+            } else {
+                subject = `Tindakan Diperlukan: GWR Belum Ditandatangani - ${row.ReportID}`;
+                bodyMsg = `Hi ${clientName},\n\nSila maklum bahawa anda masih tidak lagi selesai menandatangani GWR untuk projek ${projectName}. Sila semak draf laporan terkini dan berikan kelulusan anda supaya kami dapat memproses dokumen akhir.\n\nTerima kasih dari Voltake.`;
+            }
+
+            // URL Encode for mailto and wa.me
+            const encodedSubject = encodeURIComponent(subject);
+            const encodedBody = encodeURIComponent(bodyMsg);
+            
+            const mailtoLink = `mailto:${emailAddr}?subject=${encodedSubject}&body=${encodedBody}`;
+            const waLink = waPhone ? `https://wa.me/${waPhone}?text=${encodedBody}` : '#';
+
+            tbody.innerHTML += `
+                <tr class="hover:bg-slate-50 border-b border-slate-50 transition">
+                    <td class="px-6 py-4">
+                        <div class="font-bold text-brand-600">${row.ReportID || '-'}</div>
+                        <div class="text-xs text-slate-500 mt-1">${row.Date || '-'}</div>
+                    </td>
+                    <td class="px-6 py-4">
+                        <div class="text-slate-800 font-medium">${clientName}</div>
+                        <div class="text-xs text-slate-500">${row.ClientCompany || '-'}</div>
+                    </td>
+                    <td class="px-6 py-4">
+                        ${hasDraft 
+                            ? `<a href="${draftUrl}" target="_blank" class="inline-flex text-brand-600 bg-brand-50 hover:bg-brand-100 px-3 py-1.5 rounded text-xs font-medium border border-brand-200 transition items-center w-max"><i class="fa-regular fa-file-pdf mr-1.5 text-red-500"></i> View Draft</a>` 
+                            : `<span class="text-xs text-slate-400 italic">No Draft</span>`}
+                    </td>
+                    <td class="px-6 py-4">
+                        ${isApproved 
+                            ? `<span class="flex items-center text-emerald-600 text-sm font-medium"><i class="fa-solid fa-check-circle mr-1.5"></i> Client Signed</span>`
+                            : `<span class="flex items-center text-amber-500 text-sm font-medium"><i class="fa-regular fa-clock mr-1.5"></i> Pending Sign</span>`}
+                        <div class="text-[10px] text-slate-400 font-mono mt-1 break-all" style="max-width: 150px;">Token: ${row.ApprovalToken || 'N/A'}</div>
+                    </td>
+                    <td class="px-6 py-4">
+                        ${hasFinal 
+                            ? `<a href="${finalUrl}" target="_blank" class="inline-flex text-slate-700 bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded text-xs font-medium border border-slate-300 transition items-center w-max"><i class="fa-solid fa-file-pdf mr-1.5 text-red-600"></i> Download Final</a>` 
+                            : `<span class="text-xs text-slate-400 italic">Not Generated</span>`}
+                    </td>
+                    <td class="px-6 py-4 text-right">
+                        <a href="${emailAddr ? mailtoLink : '#'}" 
+                           class="inline-block ${emailAddr ? 'text-slate-500 hover:text-brand-600' : 'text-slate-300 cursor-not-allowed'} transition p-2" 
+                           title="${emailAddr ? 'Hantar Email' : 'Tiada Email Client'}">
+                            <i class="fa-solid fa-envelope text-lg"></i>
+                        </a>
+                        <a href="${waLink}" target="${waPhone ? '_blank' : '_self'}" 
+                           class="inline-block ${waPhone ? 'text-slate-500 hover:text-green-500' : 'text-slate-300 cursor-not-allowed'} transition p-2" 
+                           title="${waPhone ? 'Hantar WhatsApp' : 'Tiada Nombor Telefon'}">
+                            <i class="fa-brands fa-whatsapp text-lg"></i>
+                        </a>
+                    </td>
+                </tr>
+            `;
+        });
+    }
+
+    function filterDocs() {
+            const searchVal = document.getElementById('search-doc').value.toLowerCase();
+            // Use dateFilteredData instead of globalData
+            const filteredData = dateFilteredData.filter(row => {
+                return (row.ReportID || '').toLowerCase().includes(searchVal) || 
+                       (row.ClientCompany || '').toLowerCase().includes(searchVal);
+            });
+            renderDocuments(filteredData);
+        }
+
+    </script>
+</body>
+</html>

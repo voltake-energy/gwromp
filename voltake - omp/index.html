@@ -1,0 +1,1531 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Ground Work Report Form - Voltake Energy (OMP)</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="https://i.postimg.cc/nL1yRcWv/energy-services.png">
+    
+    <!-- PWA Meta Tags & Web App Manifest (Untuk Android & iOS Native App Feel) -->
+    <meta name="theme-color" content="#2c3e50">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Voltake Form">
+    <link rel="apple-touch-icon" href="https://i.postimg.cc/nL1yRcWv/energy-services.png">
+    <link rel="manifest" href='data:application/manifest+json,{"name":"Ground Work Report Form - Voltake Energy (OMP)","short_name":"Voltake Form","start_url":".","display":"standalone","background_color":"#2c3e50","theme_color":"#2c3e50","icons":[{"src":"https://i.postimg.cc/nL1yRcWv/energy-services.png","sizes":"192x192","type":"image/png"},{"src":"https://i.postimg.cc/nL1yRcWv/energy-services.png","sizes":"512x512","type":"image/png"}]}'>
+    
+    <!-- 1. Import Library html2pdf.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+    <style>
+        /* =========================================
+           1. GLOBAL VARIABLES & RESET
+           ========================================= */
+        :root {
+            --font-primary: 'Segoe UI', Arial, Helvetica, sans-serif;
+            --color-bg-app: #2c3e50;
+            --color-bg-panel: #ecf0f1;
+            --color-text: #333;
+            --color-border: #ccc;
+            --color-white: #fff;
+            --a4-width: 210mm;
+            --a4-height: 296mm; /* Saiz A4 Fix */
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: var(--font-primary);
+            background-color: var(--color-bg-app);
+            height: 100vh;
+            display: flex;
+            overflow: hidden;
+        }
+
+        /* =========================================
+           2. SPLIT LAYOUT (EDITOR VS PREVIEW)
+           ========================================= */
+        .editor-panel {
+            width: 350px;
+            background-color: var(--color-bg-panel);
+            padding: 20px;
+            overflow-y: auto;
+            border-right: 2px solid #bdc3c7;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            z-index: 10;
+        }
+
+        .editor-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #bdc3c7;
+            margin-bottom: 5px;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .editor-title {
+            font-size: 16px;
+            font-weight: bold;
+            color: #2c3e50;
+            margin: 0;
+        }
+
+        .toggle-icon {
+            font-size: 11px;
+            background: #3498db;
+            color: white;
+            padding: 5px 8px;
+            border-radius: 4px;
+            font-weight: bold;
+            transition: background 0.3s;
+        }
+        
+        .toggle-icon:hover { background: #2980b9; }
+
+        /* Status Bar (Role & Logout) */
+        .user-status-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #34495e;
+            color: white;
+            padding: 8px 10px;
+            border-radius: 4px;
+            font-size: 11px;
+            margin-bottom: 10px;
+        }
+
+        .role-badge {
+            background: #f1c40f;
+            color: #000;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .btn-logout {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            padding: 3px 8px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 10px;
+            font-weight: bold;
+        }
+        .btn-logout:hover { background: #c0392b; }
+
+        /* Search PO Box (Staff Only) */
+        .search-po-box {
+            background: #d4e6f1;
+            padding: 10px;
+            border-radius: 4px;
+            border: 1px solid #85c1e9;
+            margin-bottom: 15px;
+            display: none; /* Default hidden */
+        }
+        .search-po-box input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #3498db;
+            border-radius: 4px;
+            margin-bottom: 5px;
+        }
+        .search-po-box button {
+            width: 100%;
+            background: #2980b9;
+            color: white;
+            border: none;
+            padding: 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .input-group { margin-bottom: 10px; }
+
+        .input-group label {
+            display: block;
+            font-size: 11px;
+            font-weight: 600;
+            margin-bottom: 4px;
+            color: #34495e;
+        }
+
+        .input-group input,
+        .input-group textarea,
+        .input-group select {
+            width: 100%;
+            padding: 6px;
+            border: 1px solid #bdc3c7;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+        
+        .input-group input:disabled,
+        .input-group textarea:disabled {
+            background-color: #e9ecef;
+            color: #6c757d;
+            cursor: not-allowed;
+            border-color: #d6d8db;
+        }
+
+        input[type="file"] {
+            background: white;
+            padding: 8px;
+            border: 1px dashed #7f8c8d;
+        }
+
+        .input-group input:focus:not(:disabled),
+        .input-group textarea:focus:not(:disabled) {
+            border-color: #3498db;
+            outline: none;
+        }
+
+        .btn-clear-sig {
+            background: #e74c3c; color: white; border: none; padding: 4px 8px; font-size: 10px; border-radius: 4px; cursor: pointer; margin-top: 5px; float: right;
+        }
+
+        /* Right Side: Live Preview */
+        .preview-panel {
+            flex: 1;
+            background-color: #555;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            justify-content: center;
+        }
+        
+        #export-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 30px;
+            transition: transform 0.2s ease, margin-bottom 0.2s ease;
+        }
+
+        /* A4 PAPER STYLING */
+        .a4-page {
+            width: var(--a4-width);
+            min-height: var(--a4-height);
+            height: auto;
+            background-color: white;
+            padding: 10mm 15mm;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 0 15px rgba(0,0,0,0.3);
+            margin-bottom: 0;
+            overflow: visible;
+            page-break-after: always;
+        }
+        .a4-page:last-child { page-break-after: avoid; }
+
+        /* Report Layout Styles (DIKEMASKINI: HEADER LEBIH KECIL & PADAT) */
+        .report-header {
+            display: flex;
+            align-items: center; /* Ubah ke center supaya logo & info seimbang */
+            justify-content: space-between;
+            border-bottom: 2px solid #000;
+            padding-bottom: 5px; /* Dikurangkan */
+            margin-bottom: 8px; /* Dikurangkan */
+        }
+        .logo-container { width: 85px; /* Dikurangkan dari 110px */ height: auto; }
+        .logo-container img { width: 100%; height: auto; display: block; }
+        .company-info { text-align: right; flex: 1; margin-left: 15px; }
+        .company-name { font-size: 13px; /* Dikurangkan */ font-weight: 800; color: #000; text-transform: uppercase; margin-bottom: 1px; }
+        .company-reg { font-size: 9px; /* Dikurangkan */ font-weight:bold; margin-bottom: 3px; }
+        .contact-row { display: flex; align-items: center; justify-content: flex-end; font-size: 9px; /* Dikurangkan */ color: #444; margin-bottom: 1px; gap: 4px; }
+        .contact-icon { width: 10px; /* Dikurangkan */ height: 10px; stroke: #444; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+        .report-title { font-size: 15px; /* Dikurangkan */ font-weight: 700; text-align: center; text-transform: uppercase; margin: 5px 0 10px 0; text-decoration: underline; }
+        
+        .section-box { border: 1px solid #000; margin-bottom: 10px; }
+        .section-title { background-color: #eee; border-bottom: 1px solid #000; padding: 4px 8px; font-weight: 700; font-size: 11px; text-transform: uppercase; }
+        .grid-container { display: grid; grid-template-columns: repeat(2, 1fr); font-size: 14px; }
+        .grid-item { display: flex; border-bottom: 1px solid #ccc; border-right: 1px solid #ccc; }
+        .grid-item:nth-child(2n) { border-right: none; }
+        .field-label { background-color: #f9f9f9; padding: 5px 8px; font-weight: 600; width: 120px; border-right: 1px solid #eee; flex-shrink: 0; }
+        .field-value { padding: 5px 8px; flex-grow: 1; white-space: pre-wrap; min-height: 24px; }
+        .content-box { padding: 8px; min-height: 100px; white-space: pre-wrap; font-size: 11px; vertical-align: top; }
+        .content-box.small { min-height: 50px; }
+
+        /* Photo Grid & Description Styles */
+        .photo-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: repeat(3, 1fr);
+            gap: 10px;
+            flex-grow: 1;
+            margin-bottom: 10px;
+            height: 100%;
+            max-height: 215mm;
+        }
+        .photo-slot { 
+            border: 1px solid #555; 
+            display: flex; 
+            flex-direction: column; 
+            background-color: #fff; 
+            padding: 4px;
+            box-sizing: border-box;
+            overflow: hidden;
+            border-radius: 4px;
+        }
+        .photo-img-wrapper {
+            flex: 1;
+            min-height: 0; /* Ensures the flex item can shrink without overflowing */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #f4f4f4;
+            overflow: hidden;
+            border-radius: 2px;
+        }
+        .photo-img-wrapper img { 
+            width: 100%; 
+            height: 100%; 
+            object-fit: contain; /* Prevent cropping on important work photos */
+        }
+        .photo-desc-preview {
+            margin-top: 4px;
+            padding-top: 4px;
+            border-top: 1px dashed #ccc;
+            font-size: 10px;
+            text-align: center;
+            color: #2c3e50;
+            font-weight: 600;
+            min-height: 16px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2; /* Maximum 2 lines only */
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            word-wrap: break-word;
+        }
+        .photo-placeholder { color: #ccc; font-size: 11px; text-align: center; }
+
+        /* Editor Image List Items (Kiri) */
+        .editor-image-item {
+            display: flex; gap: 8px; align-items: center; background: #fff; padding: 6px; border: 1px solid #ccc; border-radius: 4px; margin-bottom: 5px;
+        }
+        .editor-image-item img { width: 40px; height: 40px; object-fit: cover; border-radius: 3px; }
+        .editor-image-item input { flex-grow: 1; padding: 6px; font-size: 11px; border: 1px solid #bdc3c7; border-radius: 3px; outline: none; }
+        .editor-image-item input:focus { border-color: #3498db; }
+        .editor-image-item button { background: #e74c3c; color: white; border: none; padding: 4px 8px; border-radius: 3px; cursor: pointer; font-size: 10px; font-weight: bold; }
+
+        /* Signature Footer */
+        .footer-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 20px; padding-top: 0; }
+        .sig-col { border: 1px solid #000; padding: 10px; }
+        .sig-title { text-align: center; font-weight: bold; margin-bottom: 10px; text-decoration: underline; font-size: 12px; }
+        .sig-box { height: 80px; border: 1px dashed #ccc; margin-bottom: 8px; display: flex; align-items: center; justify-content: center; color: #ddd; font-size: 10px; background-color: #fafafa; overflow: hidden; }
+        .sig-row { display: flex; margin-bottom: 6px; font-size: 11px; }
+        .sig-label { width: 70px; font-weight: 600; }
+
+        /* Page Footer */
+        .page-footer { margin-top: auto; display: flex; justify-content: space-between; align-items: center; font-size: 10px; color: #7f8c8d; border-top: 1px solid #ecf0f1; padding-top: 10px; }
+        .Voltake-btn { background-color: #000; color: #fff; padding: 2px 8px; border-radius: 4px; font-weight: bold; margin-left: 3px; display: inline-block; font-size: 9px; letter-spacing: 0.5px; }
+        
+        .print-btn {
+            background-color: #e74c3c; color: white; border: none; padding: 12px; width: 100%; cursor: pointer; font-weight: bold; margin-top: 15px; border-radius: 4px; font-size: 13px; display: flex; align-items: center; justify-content: center; gap: 8px;
+        }
+        .print-btn:hover { background-color: #c0392b; }
+        .print-btn:disabled { background-color: #95a5a6; cursor: not-allowed; }
+        .btn-save-draft { background-color: #f39c12; margin-top: 10px; }
+        .btn-save-draft:hover { background-color: #d68910; }
+
+        /* Butang Dashboard (NEW) */
+        .btn-dashboard {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #8e44ad;
+            color: white;
+            text-decoration: none;
+            padding: 10px;
+            border-radius: 4px;
+            font-weight: bold;
+            font-size: 13px;
+            margin-bottom: 5px;
+            gap: 8px;
+            transition: background 0.3s;
+        }
+        .btn-dashboard:hover { background-color: #732d91; }
+
+        /* =========================================
+           MODALS (LOGIN & PO SEARCH)
+           ========================================= */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8); z-index: 9999;
+            display: flex; justify-content: center; align-items: center;
+        }
+        .modal-content {
+            background: white; padding: 25px; border-radius: 8px;
+            width: 90%; max-width: 400px; box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+        .modal-content h2 { margin-bottom: 15px; color: #2c3e50; font-size: 18px; text-align: center; }
+        .modal-content select, .modal-content input {
+            width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 4px; font-size: 14px;
+        }
+        .modal-content button {
+            width: 100%; padding: 12px; background: #2c3e50; color: white; border: none; border-radius: 4px; font-size: 14px; font-weight: bold; cursor: pointer;
+        }
+        .modal-content button:hover { background: #1a252f; }
+        
+        /* Table PO */
+        .po-table-container { max-height: 250px; overflow-y: auto; margin-top: 15px; }
+        .po-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+        .po-table th, .po-table td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        .po-table th { background-color: #f2f2f2; position: sticky; top: 0; }
+        .po-table tr:hover { background-color: #f9f9f9; }
+        .btn-pick-po { background: #27ae60; color: white; border: none; padding: 4px 8px; border-radius: 3px; cursor: pointer; font-size: 10px; }
+
+        /* =========================================
+           TECH LOADING OVERLAY (DIGITAL FEEL)
+           ========================================= */
+        #techLoader {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(11, 19, 43, 0.95); backdrop-filter: blur(5px);
+            z-index: 100000; display: none; justify-content: center; align-items: center;
+            flex-direction: column;
+        }
+        .tech-loader-content { position: relative; display: flex; flex-direction: column; align-items: center; }
+        .logo-glow-wrapper {
+            position: relative; width: 120px; height: 120px;
+            display: flex; justify-content: center; align-items: center;
+            border-radius: 50%; box-shadow: 0 0 30px rgba(0, 243, 255, 0.1);
+            overflow: hidden;
+        }
+        .logo-glow-wrapper img {
+            width: 70px; z-index: 2;
+            filter: drop-shadow(0 0 8px rgba(0, 243, 255, 0.8));
+            animation: breath 2s infinite alternate;
+        }
+        .tech-ring { position: absolute; border-radius: 50%; border: 2px solid transparent; }
+        .tech-ring-1 {
+            width: 140px; height: 140px; border-top-color: #00f3ff; border-bottom-color: #00f3ff;
+            animation: spin 3s linear infinite;
+        }
+        .tech-ring-2 {
+            width: 160px; height: 160px; border-left-color: #3498db; border-right-color: #3498db;
+            animation: spinReverse 2s linear infinite; opacity: 0.7;
+        }
+        .scanner {
+            position: absolute; top: 0; left: 0; width: 100%; height: 2px;
+            background: #00f3ff; box-shadow: 0 0 10px #00f3ff; z-index: 3;
+            animation: scan 2s linear infinite;
+        }
+        .tech-loading-text {
+            margin-top: 40px; color: #00f3ff; font-family: monospace;
+            font-size: 14px; letter-spacing: 3px; font-weight: bold;
+            text-shadow: 0 0 5px #00f3ff; animation: blink 1.5s infinite;
+        }
+
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+        @keyframes spinReverse { 100% { transform: rotate(-360deg); } }
+        @keyframes scan { 0% { top: -20px; opacity: 0; } 10% { opacity: 1; } 90% { opacity: 1; } 100% { top: 100%; opacity: 0; } }
+        @keyframes breath { 0% { transform: scale(0.9); opacity: 0.8; } 100% { transform: scale(1.1); opacity: 1; } }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            body { flex-direction: column; overflow-y: auto; height: auto; }
+            .editor-panel { width: 100%; position: sticky; top: 0; z-index: 1000; max-height: 55vh; border-right: none; border-bottom: 3px solid #2c3e50; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
+            .editor-panel.minimized { max-height: auto; padding-bottom: 10px; overflow: hidden; }
+            .preview-panel { width: 100%; padding: 20px 0; overflow: hidden; align-items: flex-start; min-height: 80vh; }
+            .input-group input, .input-group textarea, .input-group select { font-size: 16px; padding: 10px; }
+            .input-group label { font-size: 12px; margin-bottom: 6px; }
+            .print-btn { font-size: 16px; padding: 15px; }
+        }
+
+        /* Print Query */
+        @media print {
+            body { background-color: white; height: auto; overflow: visible; display: block; }
+            .editor-panel, .print-btn, .btn-save-draft, .btn-dashboard { display: none !important; }
+            .preview-panel { padding: 0; background: none; display: block; }
+            #export-container { display: block; gap: 0; transform: none !important; margin: 0 !important; }
+            .a4-page { box-shadow: none; margin: 0; width: 100%; height: 296mm; border: none; page-break-after: always; padding: 10mm 15mm; overflow: hidden; }
+            @page { margin: 0; size: A4; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- TECH LOADING OVERLAY -->
+    <div id="techLoader">
+        <div class="tech-loader-content">
+            <div class="tech-ring tech-ring-1"></div>
+            <div class="tech-ring tech-ring-2"></div>
+            <div class="logo-glow-wrapper">
+                <img src="https://i.postimg.cc/nL1yRcWv/energy-services.png" alt="Loading Logo">
+                <div class="scanner"></div>
+            </div>
+            <div class="tech-loading-text" id="techLoadingText">SYSTEM BOOTING...</div>
+        </div>
+    </div>
+
+    <!-- CUSTOM ALERT MODAL -->
+    <div id="customAlertModal" class="modal-overlay" style="display:none; z-index: 100001;">
+        <div class="modal-content" style="text-align: center; max-width: 300px;">
+            <p id="customAlertText" style="margin-bottom: 20px; font-size: 14px; color: #333; line-height: 1.5;"></p>
+            <button onclick="document.getElementById('customAlertModal').style.display='none'">OK</button>
+        </div>
+    </div>
+
+    <!-- 1. LOGIN MODAL -->
+    <div id="loginModal" class="modal-overlay">
+        <div class="modal-content">
+            <h2>Log Masuk Sistem Voltake</h2>
+            <select id="loginRole">
+                <option value="manager">Manager</option>
+                <option value="supervisor">Supervisor</option>
+                <option value="staff">Staf</option>
+            </select>
+            <input type="password" id="loginPassword" placeholder="Kata Laluan" onkeypress="if(event.key === 'Enter') checkLogin()">
+            <p id="loginError" style="color:red; font-size:12px; display:none; margin-top:-10px; margin-bottom:10px;">Kata laluan salah!</p>
+            <button onclick="checkLogin()">Log Masuk</button>
+        </div>
+    </div>
+
+    <!-- 2. PO SEARCH MODAL (Untuk Staf) -->
+    <div id="poSearchModal" class="modal-overlay" style="display:none;">
+        <div class="modal-content" style="max-width: 500px;">
+            <h2>Hasil Carian PO</h2>
+            <p style="font-size:12px; color:#555;">Sila pilih rekod dari senarai di bawah:</p>
+            <div class="po-table-container">
+                <table class="po-table">
+                    <thead>
+                        <tr>
+                            <th>Tarikh</th>
+                            <th>No. PO</th>
+                            <th>Klien</th>
+                            <th>Tindakan</th>
+                        </tr>
+                    </thead>
+                    <tbody id="poTableBody">
+                        <!-- Javascript will inject rows here -->
+                    </tbody>
+                </table>
+            </div>
+            <button onclick="closePoModal()" style="margin-top: 15px; background: #e74c3c;">Batal</button>
+        </div>
+    </div>
+
+    <!-- LEFT PANEL: DATA ENTRY FORM -->
+    <div class="editor-panel">
+        
+        <div class="editor-header" onclick="toggleForm()">
+            <div class="editor-title">📝 Isi Maklumat Form</div>
+            <div id="toggleIcon" class="toggle-icon">Sembunyi ▲</div>
+        </div>
+
+        <!-- NEW: WRAPPER FORM CONTENT -->
+        <div id="formContentWrapper" style="display:none;"> <!-- Hidden initially until login -->
+            
+            <!-- User Info Bar -->
+            <div class="user-status-bar">
+                <span>Akses: <span id="roleDisplay" class="role-badge">TBD</span></span>
+                <button class="btn-logout" onclick="logout()">Log Keluar</button>
+            </div>
+
+            <!-- NEW: BUTANG DASHBOARD (Hanya untuk Manager) -->
+            <a href="/dashboard" id="btnDashboard" class="btn-dashboard" style="display: none;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9"></rect><rect x="14" y="3" width="7" height="5"></rect><rect x="14" y="12" width="7" height="9"></rect><rect x="3" y="16" width="7" height="5"></rect></svg>
+                Pergi ke Dashboard
+            </a>
+
+            <!-- Search Area (Kini boleh diguna oleh Manager & Staff) -->
+            <div id="poSearchArea" class="search-po-box">
+                <label style="font-size: 11px; font-weight: bold; color: #2c3e50; display:block; margin-bottom:5px;">Cari & Tarik Data Draf (Nombor PO)</label>
+                <input type="text" id="searchPoInput" placeholder="Masukkan No PO (Cth: PO-1001)">
+                <button id="btnSearchPo" onclick="searchPO()">Cari Maklumat Draf</button>
+                <div id="searchMsg" style="font-size: 10px; color: #e74c3c; margin-top: 5px; font-weight: bold;"></div>
+            </div>
+
+            <!-- Section 1 Inputs (Manager Only) -->
+            <div id="managerFieldsGroup">
+                <div class="input-group">
+                    <label>Date</label>
+                    <input type="date" id="f_date" class="manager-input" oninput="updateMultiDate(this.value)">
+                </div>
+                <div class="input-group">
+                    <label>PO Number</label>
+                    <input type="text" id="f_po" class="manager-input" placeholder="e.g. PO-2023-001" oninput="update('v_po', this.value)">
+                </div>
+                <div class="input-group">
+                    <label>Quotation Number</label>
+                    <input type="text" id="f_qt" class="manager-input" placeholder="e.g. QT-999" oninput="update('v_qt', this.value)">
+                </div>
+                <div class="input-group">
+                    <label>MOS Number</label>
+                    <input type="text" id="f_mos" class="manager-input" oninput="update('v_mos', this.value)">
+                </div>
+                <div class="input-group">
+                    <label>Client (Company)</label>
+                    <input type="text" id="f_client" class="manager-input" oninput="update('v_client', this.value)">
+                </div>
+                <div class="input-group">
+                    <label>Project Title</label>
+                    <textarea id="f_title" class="manager-input" rows="2" oninput="update('v_title', this.value)"></textarea>
+                </div>
+                <div class="input-group">
+                    <label>Location / Site</label>
+                    <input type="text" id="f_loc" class="manager-input" oninput="update('v_loc', this.value)">
+                </div>
+                <div class="input-group">
+                    <label>PIC Client (Project Info)</label>
+                    <input type="text" id="f_pic_name" class="manager-input" placeholder="Name" oninput="update('v_pic_name', this.value); syncPicDetails();" style="margin-bottom:5px;">
+                    <input type="text" id="f_pic_phone" class="manager-input" placeholder="Phone" oninput="update('v_pic_phone', this.value); syncPicDetails();">
+                </div>
+            </div>
+
+            <!-- Time In Out (All Roles) -->
+            <div class="input-group">
+                <label>Time In / Out</label>
+                <div style="display:flex; gap:5px;">
+                    <input type="time" id="f_in" oninput="update('v_in', this.value)">
+                    <input type="time" id="f_out" oninput="update('v_out', this.value)">
+                </div>
+            </div>
+
+            <hr style="margin: 15px 0;">
+
+            <!-- Section 2 & 3 Inputs (All Roles) -->
+            <div class="input-group">
+                <label>Job Description / Details</label>
+                <textarea id="f_job_desc" rows="6" oninput="update('v_job_desc', this.value)"></textarea>
+            </div>
+            <div class="input-group">
+                <label>Unresolved Issue & Action</label>
+                <textarea id="f_issue" rows="4" oninput="update('v_issue', this.value)"></textarea>
+            </div>
+            <div class="input-group">
+                <label>Remarks</label>
+                <textarea id="f_remark" rows="2" oninput="update('v_remark', this.value)"></textarea>
+            </div>
+
+            <hr style="margin: 15px 0;">
+
+            <!-- IMAGE UPLOAD (All Roles) -->
+            <div class="input-group" style="background: #e8f6f3; padding: 10px; border-radius: 4px;">
+                <label style="color:#16a085;">📸 Upload Gambar (Max 6)</label>
+                <input type="file" id="imageInput" accept="image/*" multiple onchange="handleImageUpload(this)">
+                <p style="font-size:10px; color:#7f8c8d; margin-top:5px;">Pilih sehingga 6 gambar. Tambah nota pada gambar yang dimuat naik di bawah.</p>
+                
+                <!-- Ruangan Editor Senarai Gambar dan Nota -->
+                <div id="editorImageList" style="margin-top: 10px; display: flex; flex-direction: column; gap: 8px;"></div>
+                
+                <button type="button" class="btn-clear-sig" onclick="clearAllImages()" style="margin-top: 10px; background: #e74c3c;">Padam Semua Gambar</button>
+                <div style="clear:both;"></div>
+            </div>
+
+            <hr style="margin: 15px 0;">
+
+            <!-- Footer Inputs (All Roles) -->
+            <div class="input-group" style="background: #fdf2e9; padding: 8px; border-radius: 4px; border: 1px dashed #f39c12; margin-bottom: 10px;">
+                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; color: #d35400; font-size: 11px; margin: 0;">
+                    <input type="checkbox" id="copyPicDetails" onchange="handleCopyPic()" style="width: 14px; height: 14px; margin: 0;">
+                    <span style="margin-top: 2px;">Sama seperti PIC Client (Project Info)</span>
+                </label>
+            </div>
+
+            <div class="input-group">
+                <label>PIC Client Name (Untuk Sign Bawah)</label>
+                <input type="text" id="f_sign_client_name" oninput="update('v_sign_client_name', this.value)">
+            </div>
+            <div class="input-group">
+                <label>PIC Client Position (Untuk Sign Bawah)</label>
+                <input type="text" id="f_sign_client_pos" oninput="update('v_sign_client_pos', this.value)">
+            </div>
+            <div class="input-group">
+                <label>PIC Client Phone (Untuk Sign Bawah)</label>
+                <input type="text" id="f_sign_client_phone" placeholder="Cth: 0123456789" oninput="update('v_sign_client_phone', this.value)">
+            </div>
+
+            <div class="input-group">
+                <label>PIC Staff Name</label>
+                <input type="text" id="f_staff_name" oninput="update('v_staff_name', this.value)">
+            </div>
+            <div class="input-group">
+                <label>PIC Staff Position</label>
+                <input type="text" id="f_staff_pos" oninput="update('v_staff_pos', this.value)">
+            </div>
+
+            <!-- CANVAS TANDATANGAN STAF -->
+            <div class="input-group" style="background: #ecf0f1; padding: 10px; border-radius: 4px; border: 1px solid #bdc3c7;">
+                <label style="color:#2c3e50;">✍️ Tandatangan Staf Di Sini</label>
+                <div style="background: white; border: 1px solid #ccc; border-radius: 4px; overflow:hidden;">
+                    <canvas id="staffCanvas" style="width: 100%; height: 120px; cursor: crosshair; touch-action: none;"></canvas>
+                </div>
+                <button type="button" class="btn-clear-sig" onclick="clearStaffCanvas()">Padam Tandatangan</button>
+                <div style="clear:both;"></div>
+            </div>
+
+            <!-- Butang Simpan Draf (Manager Only) -->
+            <button id="btnSaveDraft" class="print-btn btn-save-draft" onclick="saveDraftToSystem()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
+                Simpan Data (Untuk Disambung Staf)
+            </button>
+
+            <!-- Butang Submit (Semua) -->
+            <button id="submitSystemBtn" class="print-btn" style="background-color: #27ae60;" onclick="submitToSystem()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+                Hantar & Dapatkan Link Klien
+            </button>
+
+            <!-- Download PDF Button (Semua) -->
+            <button id="downloadBtn" class="print-btn" style="background-color: #e74c3c;" onclick="generatePDF()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                Download as PDF
+            </button>
+            
+            <div id="systemMessage" style="font-size:12px; margin-top:10px; text-align:center; font-weight:bold; color:#2c3e50; padding: 5px; border-radius: 4px;"></div>
+        
+        </div> <!-- End Wrapper Form Content -->
+
+    </div>
+
+    <!-- RIGHT PANEL: PREVIEW -->
+    <div class="preview-panel">
+        <div id="export-container">
+            
+            <!-- PAGE 1: DETAILS -->
+            <div class="a4-page">
+                <div class="report-header">
+                    <div class="logo-container">
+                        <img src="https://i.postimg.cc/nL1yRcWv/energy-services.png" alt="Voltake Logo" crossorigin="anonymous">
+                    </div>
+                    <div class="company-info">
+                        <div class="company-name">Voltake Energy (OMP)</div>
+                        <div class="company-reg">201801008831 (1270845-X)</div>
+                        <div class="contact-row">
+                            <svg class="contact-icon" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+                            <span>+604-5823617</span>
+                        </div>
+                        <div class="contact-row">
+                            <svg class="contact-icon" viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+                            <span>admin@voltake.com</span>
+                        </div>
+                        <div class="contact-row">
+                            <svg class="contact-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
+                            <span>www.voltake.com</span>
+                        </div>
+                    </div>
+                </div>
+
+                <h1 class="report-title">Ground Work Report Form</h1>
+
+                <div class="section-box">
+                    <div class="section-title">Project Information</div>
+                    <div class="grid-container">
+                        <div class="grid-item"><div class="field-label">Date</div><div class="field-value" id="v_date"></div></div>
+                        <div class="grid-item"><div class="field-label">PO No.</div><div class="field-value" id="v_po"></div></div>
+                        <div class="grid-item"><div class="field-label">Quotation No.</div><div class="field-value" id="v_qt"></div></div>
+                        <div class="grid-item"><div class="field-label">MOS No.</div><div class="field-value" id="v_mos"></div></div>
+                        <div class="grid-item" style="grid-column: span 2;"><div class="field-label">Client</div><div class="field-value" id="v_client"></div></div>
+                        <div class="grid-item" style="grid-column: span 2;"><div class="field-label">Project Title</div><div class="field-value" id="v_title"></div></div>
+                        <div class="grid-item" style="grid-column: span 2;"><div class="field-label">Location</div><div class="field-value" id="v_loc"></div></div>
+                        <div class="grid-item"><div class="field-label">Time In</div><div class="field-value" id="v_in"></div></div>
+                        <div class="grid-item"><div class="field-label">Time Out</div><div class="field-value" id="v_out"></div></div>
+                        <div class="grid-item"><div class="field-label">PIC Client</div><div class="field-value" id="v_pic_name"></div></div>
+                        <div class="grid-item"><div class="field-label">PIC Phone</div><div class="field-value" id="v_pic_phone"></div></div>
+                    </div>
+                </div>
+
+                <div class="section-box">
+                    <div class="section-title">Job Description / Job Details</div>
+                    <div class="content-box" id="v_job_desc"></div>
+                </div>
+
+                <div class="section-box">
+                    <div class="section-title">Unresolved Issue & Action To Be Taken</div>
+                    <div class="content-box" id="v_issue"></div>
+                </div>
+
+                <div class="section-box">
+                    <div class="section-title">Remark / Comment</div>
+                    <div class="content-box small" id="v_remark"></div>
+                </div>
+
+                <div class="page-footer">
+                    <div>© 2026 All Right Reserved by <span class="Voltake-btn">Voltake</span></div>
+                    <div>Page 1 of 3</div>
+                </div>
+            </div>
+
+            <!-- PAGE 2: IMAGES -->
+            <div class="a4-page">
+                <div class="report-header">
+                    <div class="logo-container">
+                        <img src="https://i.postimg.cc/nL1yRcWv/energy-services.png" alt="Voltake Logo" crossorigin="anonymous">
+                    </div>
+                    <div class="company-info">
+                        <div class="company-name">Voltake Energy</div>
+                        <div class="company-reg">201801008831 (1270845-X)</div>
+                        <div class="contact-row">
+                            <svg class="contact-icon" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+                            <span>+604-5823617</span>
+                        </div>
+                        <div class="contact-row">
+                            <svg class="contact-icon" viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+                            <span>admin@voltake.com</span>
+                        </div>
+                        <div class="contact-row">
+                            <svg class="contact-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
+                            <span>www.voltake.com</span>
+                        </div>
+                    </div>
+                </div>
+
+                <h1 class="report-title">Site Photos / Lampiran Gambar</h1>
+
+                <!-- Ruangan Grid Untuk Gambar -->
+                <div class="photo-grid" id="photo-preview-grid">
+                    <div class="photo-slot">
+                        <div class="photo-img-wrapper"><div class="photo-placeholder">No Image</div></div>
+                        <div class="photo-desc-preview"></div>
+                    </div>
+                    <div class="photo-slot">
+                        <div class="photo-img-wrapper"><div class="photo-placeholder">No Image</div></div>
+                        <div class="photo-desc-preview"></div>
+                    </div>
+                    <div class="photo-slot">
+                        <div class="photo-img-wrapper"><div class="photo-placeholder">No Image</div></div>
+                        <div class="photo-desc-preview"></div>
+                    </div>
+                    <div class="photo-slot">
+                        <div class="photo-img-wrapper"><div class="photo-placeholder">No Image</div></div>
+                        <div class="photo-desc-preview"></div>
+                    </div>
+                    <div class="photo-slot">
+                        <div class="photo-img-wrapper"><div class="photo-placeholder">No Image</div></div>
+                        <div class="photo-desc-preview"></div>
+                    </div>
+                    <div class="photo-slot">
+                        <div class="photo-img-wrapper"><div class="photo-placeholder">No Image</div></div>
+                        <div class="photo-desc-preview"></div>
+                    </div>
+                </div>
+
+                <div class="page-footer">
+                    <div>© 2026 All Right Reserved by <span class="Voltake-btn">Voltake</span></div>
+                    <div>Page 2 of 3</div>
+                </div>
+            </div>
+
+            <!-- PAGE 3: SIGNATURES -->
+            <div class="a4-page">
+                <div class="report-header">
+                    <div class="logo-container">
+                        <img src="https://i.postimg.cc/nL1yRcWv/energy-services.png" alt="Voltake Logo" crossorigin="anonymous">
+                    </div>
+                    <div class="company-info">
+                        <div class="company-name">Voltake Energy</div>
+                        <div class="company-reg">201801008831 (1270845-X)</div>
+                        <div class="contact-row">
+                            <svg class="contact-icon" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+                            <span>+604-5823617</span>
+                        </div>
+                        <div class="contact-row">
+                            <svg class="contact-icon" viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+                            <span>admin@voltake.com</span>
+                        </div>
+                        <div class="contact-row">
+                            <svg class="contact-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
+                            <span>www.voltake.com</span>
+                        </div>
+                    </div>
+                </div>
+
+                <h1 class="report-title">Verifications / Pengesahan</h1>
+
+                <div style="flex-grow:1; display:flex; flex-direction:column; justify-content:flex-start; padding-top: 30px;">
+                    <div class="footer-grid">
+                        <div class="sig-col">
+                            <div class="sig-title">PIC CLIENT</div>
+                            <div class="sig-box" style="background-color: #fff9e6; border-color: #f1c40f;">(Menunggu Tandatangan Klien)</div>
+                            <div class="sig-row"><div class="sig-label">Name:</div><div class="field-value" id="v_sign_client_name" style="border-bottom:1px solid #ccc;"></div></div>
+                            <div class="sig-row"><div class="sig-label">Position:</div><div class="field-value" id="v_sign_client_pos" style="border-bottom:1px solid #ccc;"></div></div>
+                            <div class="sig-row"><div class="sig-label">Phone:</div><div class="field-value" id="v_sign_client_phone" style="border-bottom:1px solid #ccc;"></div></div>
+                            <div class="sig-row"><div class="sig-label">Date:</div><div class="field-value" id="v_sign_date1" style="border-bottom:1px solid #ccc;"></div></div>
+                        </div>
+
+                        <div class="sig-col">
+                            <div class="sig-title">PIC STAFF</div>
+                            <div class="sig-box" id="preview-staff-sig">(Tandatangan Staf)</div>
+                            <div class="sig-row"><div class="sig-label">Name:</div><div class="field-value" id="v_staff_name" style="border-bottom:1px solid #ccc;"></div></div>
+                            <div class="sig-row"><div class="sig-label">Position:</div><div class="field-value" id="v_staff_pos" style="border-bottom:1px solid #ccc;"></div></div>
+                            <div class="sig-row"><div class="sig-label">Date:</div><div class="field-value" id="v_sign_date2" style="border-bottom:1px solid #ccc;"></div></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="page-footer">
+                    <div>© 2026 All Right Reserved by <span class="Voltake-btn">Voltake</span></div>
+                    <div>Page 3 of 3</div>
+                </div>
+            </div>
+            
+        </div> <!-- End Export Container -->
+    </div>
+
+    <!-- JAVASCRIPT -->
+    <script>
+        // MASUKKAN URL GOOGLE APPS SCRIPT (WEB APP) ANDA DI SINI
+        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwz2tQ4S-JDvATaWnu2tldg3GWpkoiCWgcVZNSwH-OgqY1v1gmj09yQ6hCWgkAcO9tL/exec"; 
+
+        // ==========================================
+        // CUSTOM ALERT FUNCTION (Replacing native alert)
+        // ==========================================
+        function customAlert(message) {
+            document.getElementById('customAlertText').innerText = message;
+            document.getElementById('customAlertModal').style.display = 'flex';
+        }
+
+        // ==========================================
+        // TECH LOADER FUNCTIONS
+        // ==========================================
+        function showTechLoader(text) {
+            document.getElementById('techLoadingText').innerText = text || "PROCESSING...";
+            document.getElementById('techLoader').style.display = "flex";
+        }
+        function hideTechLoader() {
+            document.getElementById('techLoader').style.display = "none";
+        }
+
+        // Initial Splash Screen (Sistem Booting)
+        window.addEventListener('load', () => {
+            showTechLoader("SYSTEM BOOTING...");
+            setTimeout(() => { hideTechLoader(); }, 1500);
+        });
+
+        // ==========================================
+        // 1. SISTEM LOG MASUK & AKSES PERANAN
+        // ==========================================
+        let currentRole = null; 
+        let currentStaffToken = ""; // Simpan token draf sekiranya staf sedang edit
+
+        // ==========================================
+        // FUNGSI AUTO-COPY PIC CLIENT
+        // ==========================================
+        function handleCopyPic() {
+            syncPicDetails();
+        }
+
+        function syncPicDetails() {
+            const isChecked = document.getElementById('copyPicDetails').checked;
+            const nameInput = document.getElementById('f_pic_name').value;
+            const phoneInput = document.getElementById('f_pic_phone').value;
+            
+            const signNameInput = document.getElementById('f_sign_client_name');
+            const signPhoneInput = document.getElementById('f_sign_client_phone');
+
+            if (isChecked) {
+                signNameInput.value = nameInput;
+                signPhoneInput.value = phoneInput;
+                update('v_sign_client_name', nameInput);
+                update('v_sign_client_phone', phoneInput);
+            }
+        }
+
+        function checkLogin() {
+            const role = document.getElementById('loginRole').value;
+            const pass = document.getElementById('loginPassword').value;
+            const errorMsg = document.getElementById('loginError');
+            
+            if (role === 'manager' && pass === 'manager123#') {
+                currentRole = 'manager';
+            } else if (role === 'supervisor' && pass === 'sv123#') {
+                currentRole = 'supervisor';
+            } else if (role === 'staff' && pass === 'staf123#') {
+                currentRole = 'staff';
+            } else {
+                errorMsg.style.display = 'block';
+                return;
+            }
+
+            errorMsg.style.display = 'none';
+            document.getElementById('loginModal').style.display = 'none';
+            document.getElementById('formContentWrapper').style.display = 'block';
+            document.getElementById('roleDisplay').innerText = role;
+            
+            applyRoleUI();
+            
+            setTimeout(() => {
+                resizeStaffCanvas();
+                applyPreviewScale();
+            }, 100);
+        }
+
+        function logout() {
+            currentRole = null;
+            currentStaffToken = "";
+            document.getElementById('loginPassword').value = '';
+            document.getElementById('formContentWrapper').style.display = 'none';
+            document.getElementById('loginModal').style.display = 'flex';
+        }
+
+        function applyRoleUI() {
+            const managerInputs = document.querySelectorAll('.manager-input');
+            const btnSaveDraft = document.getElementById('btnSaveDraft');
+            const poSearchArea = document.getElementById('poSearchArea');
+            const btnDashboard = document.getElementById('btnDashboard');
+
+            if (currentRole === 'manager' || currentRole === 'supervisor') {
+                managerInputs.forEach(input => input.disabled = false);
+                btnSaveDraft.style.display = 'flex';
+                poSearchArea.style.display = 'block'; // Paparkan pada Manager & Supervisor
+                btnDashboard.style.display = 'flex';  // Paparkan butang Dashboard
+                document.getElementById('roleDisplay').style.background = currentRole === 'manager' ? '#f1c40f' : '#e67e22';
+            } else if (currentRole === 'staff') {
+                managerInputs.forEach(input => input.disabled = true);
+                btnSaveDraft.style.display = 'none';
+                poSearchArea.style.display = 'block'; // Paparkan pada Staf
+                btnDashboard.style.display = 'none';  // Sembunyikan butang Dashboard
+                document.getElementById('roleDisplay').style.background = '#2ecc71';
+            }
+        }
+
+        // ==========================================
+        // FUNGSI CARI PO & LOAD DATA (MANAGER & STAF)
+        // ==========================================
+        function searchPO() {
+            const poInput = document.getElementById('searchPoInput').value.trim();
+            const msgBox = document.getElementById('searchMsg');
+            if (!poInput) {
+                msgBox.innerText = "Sila masukkan nombor PO.";
+                return;
+            }
+
+            msgBox.innerText = "Sedang mencari data... Sila tunggu.";
+            const btn = document.getElementById('btnSearchPo');
+            btn.disabled = true;
+
+            showTechLoader("SEARCHING DATABASE...");
+
+            fetch(WEB_APP_URL, {
+                method: 'POST',
+                body: JSON.stringify({ action: "search_po", po: poInput })
+            })
+            .then(res => res.json())
+            .then(data => {
+                hideTechLoader();
+                btn.disabled = false;
+                msgBox.innerText = "";
+                if (data.status === 'success') {
+                    displayPoResults(data.data);
+                } else {
+                    msgBox.innerText = "Tiada rekod draf dijumpai untuk nombor PO ini.";
+                }
+            })
+            .catch(err => {
+                hideTechLoader();
+                btn.disabled = false;
+                msgBox.innerText = "Ralat sistem. Pastikan URL Google Apps Script betul.";
+            });
+        }
+
+        function displayPoResults(results) {
+            const tbody = document.getElementById('poTableBody');
+            tbody.innerHTML = '';
+
+            results.forEach((row) => {
+                const tr = document.createElement('tr');
+                const stringifiedData = JSON.stringify(row).replace(/'/g, "&#39;");
+                tr.innerHTML = `
+                    <td>${row.date || ''}</td>
+                    <td>${row.po || ''}</td>
+                    <td>${row.client || ''}</td>
+                    <td><button class="btn-pick-po" onclick='loadDraftData(${stringifiedData})'>Pilih</button></td>
+                `;
+                tbody.appendChild(tr);
+            });
+            document.getElementById('poSearchModal').style.display = 'flex';
+        }
+
+        function closePoModal() {
+            document.getElementById('poSearchModal').style.display = 'none';
+        }
+
+        function loadDraftData(dataObj) {
+            setFieldValue('f_date', dataObj.date);
+            setFieldValue('f_po', dataObj.po);
+            setFieldValue('f_qt', dataObj.qt);
+            setFieldValue('f_mos', dataObj.mos);
+            setFieldValue('f_client', dataObj.client);
+            setFieldValue('f_title', dataObj.title);
+            setFieldValue('f_loc', dataObj.loc);
+            setFieldValue('f_pic_name', dataObj.picName);
+            setFieldValue('f_pic_phone', dataObj.picPhone);
+            setFieldValue('f_sign_client_name', dataObj.signClientName);
+            setFieldValue('f_sign_client_pos', dataObj.signClientPos);
+            setFieldValue('f_sign_client_phone', dataObj.signClientPhone);
+
+            currentStaffToken = dataObj.staffToken; 
+
+            closePoModal();
+            customAlert("Berjaya tarik data! Sila teruskan kerja anda.");
+        }
+
+        // ==========================================
+        // FUNGSI SIMPAN DRAF (MANAGER)
+        // ==========================================
+        function saveDraftToSystem() {
+            const btn = document.getElementById('btnSaveDraft');
+            const msgBox = document.getElementById('systemMessage');
+            
+            const payload = {
+                action: "save_draft",
+                staffToken: currentStaffToken, // Hantar token jika Manager edit draf yg dah ditarik
+                date: document.getElementById('f_date').value,
+                po: document.getElementById('f_po').value,
+                qt: document.getElementById('f_qt').value,
+                mos: document.getElementById('f_mos').value,
+                clientCompany: document.getElementById('f_client').value,
+                title: document.getElementById('f_title').value,
+                location: document.getElementById('f_loc').value,
+                picName: document.getElementById('f_pic_name').value,
+                picPhone: document.getElementById('f_pic_phone').value,
+                signClientName: document.getElementById('f_sign_client_name').value,
+                signClientPos: document.getElementById('f_sign_client_pos').value,
+                signClientPhone: document.getElementById('f_sign_client_phone').value
+            };
+
+            if (!payload.po) {
+                customAlert("Sila masukkan PO Number untuk rujukan carian staf nanti.");
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerHTML = 'Sedang Menyimpan...';
+            msgBox.style.background = "#f1c40f";
+            msgBox.innerHTML = "Menghantar draf ke pangkalan data...";
+
+            showTechLoader("SAVING DATA TO CLOUD...");
+
+            fetch(WEB_APP_URL, {
+                method: 'POST',
+                body: JSON.stringify(payload)
+            })
+            .then(res => res.json())
+            .then(data => {
+                hideTechLoader();
+                if(data.status === 'success') {
+                    msgBox.style.background = "#d4edda";
+                    msgBox.innerHTML = `<span style="color:green;">Draf berjaya disimpan / dikemaskini! Maklumkan kepada Staf nombor PO: <b>${payload.po}</b></span>`;
+                    if(data.staffToken) currentStaffToken = data.staffToken; // Simpan token baru
+                } else {
+                    msgBox.style.background = "#f8d7da";
+                    msgBox.innerHTML = `<span style="color:red;">Ralat: ${data.message}</span>`;
+                }
+                btn.disabled = false;
+                btn.innerHTML = 'Simpan Data (Untuk Disambung Staf)';
+            })
+            .catch(err => {
+                hideTechLoader();
+                msgBox.style.background = "#f8d7da";
+                msgBox.innerHTML = `<span style="color:red;">Ralat Network. Sila pastikan URL Web App tepat.</span>`;
+                btn.disabled = false;
+                btn.innerHTML = 'Simpan Data (Untuk Disambung Staf)';
+            });
+        }
+
+        // ==========================================
+        // FUNGSI FORM BASIC (Update Preview dll)
+        // ==========================================
+        function toggleForm() {
+            const panel = document.querySelector('.editor-panel');
+            const content = document.getElementById('formContentWrapper');
+            const icon = document.getElementById('toggleIcon');
+            
+            if (content.style.display === 'none') {
+                content.style.display = 'block';
+                panel.classList.remove('minimized');
+                icon.innerHTML = 'Sembunyi ▲';
+                if(!currentRole) logout(); 
+            } else {
+                content.style.display = 'none';
+                panel.classList.add('minimized');
+                icon.innerHTML = 'Papar Form ▼';
+            }
+            setTimeout(applyPreviewScale, 100);
+        }
+
+        function update(targetId, value) {
+            const element = document.getElementById(targetId);
+            if(element) element.innerText = value;
+        }
+
+        function setFieldValue(inputId, value) {
+            const el = document.getElementById(inputId);
+            if(el) {
+                if (inputId === 'f_date' && value) {
+                    try {
+                        const d = new Date(value);
+                        value = d.toISOString().split('T')[0];
+                    } catch(e) {}
+                }
+                el.value = value || '';
+                const event = new Event('input', { bubbles: true });
+                el.dispatchEvent(event);
+            }
+        }
+
+        function updateMultiDate(val) {
+            update('v_date', val); update('v_sign_date1', val); update('v_sign_date2', val);
+        }
+
+        function applyPreviewScale() {
+            if (document.body.classList.contains('is-exporting')) return;
+            const wrapper = document.getElementById('export-container');
+            if (window.innerWidth <= 900) {
+                const availableWidth = window.innerWidth - 20; 
+                const scaleRatio = availableWidth / 794; 
+                if (scaleRatio < 1) {
+                    wrapper.style.transform = `scale(${scaleRatio})`;
+                    wrapper.style.transformOrigin = 'top center';
+                    wrapper.style.marginBottom = `-${wrapper.offsetHeight * (1 - scaleRatio)}px`;
+                } else {
+                    wrapper.style.transform = 'none';
+                    wrapper.style.marginBottom = '0';
+                }
+            } else {
+                wrapper.style.transform = 'none';
+                wrapper.style.marginBottom = '0';
+            }
+        }
+        window.addEventListener('resize', applyPreviewScale);
+        setTimeout(applyPreviewScale, 300);
+
+        // ==========================================
+        // CANVAS TANDATANGAN STAF
+        // ==========================================
+        const sCanvas = document.getElementById('staffCanvas');
+        const sCtx = sCanvas.getContext('2d');
+        let sDrawing = false;
+
+        function resizeStaffCanvas() {
+            const rect = sCanvas.parentElement.getBoundingClientRect();
+            sCanvas.width = rect.width; sCanvas.height = 120;
+        }
+        window.addEventListener('resize', resizeStaffCanvas);
+        setTimeout(resizeStaffCanvas, 100);
+
+        function getPos(e) {
+            const rect = sCanvas.getBoundingClientRect();
+            let clientX = e.clientX || (e.touches && e.touches[0].clientX);
+            let clientY = e.clientY || (e.touches && e.touches[0].clientY);
+            return { x: clientX - rect.left, y: clientY - rect.top };
+        }
+
+        function startStaffDraw(e) { sDrawing = true; drawStaff(e); }
+        function endStaffDraw() { sDrawing = false; sCtx.beginPath(); updateStaffSigPreview(); }
+        
+        function drawStaff(e) {
+            if (!sDrawing) return;
+            e.preventDefault();
+            const pos = getPos(e);
+            sCtx.lineWidth = 2; sCtx.lineCap = 'round'; sCtx.strokeStyle = '#000';
+            sCtx.lineTo(pos.x, pos.y); sCtx.stroke(); sCtx.beginPath(); sCtx.moveTo(pos.x, pos.y);
+        }
+
+        sCanvas.addEventListener('mousedown', startStaffDraw);
+        sCanvas.addEventListener('mouseup', endStaffDraw);
+        sCanvas.addEventListener('mousemove', drawStaff);
+        sCanvas.addEventListener('touchstart', startStaffDraw, {passive: false});
+        sCanvas.addEventListener('touchend', endStaffDraw);
+        sCanvas.addEventListener('touchmove', drawStaff, {passive: false});
+
+        function clearStaffCanvas() {
+            sCtx.clearRect(0, 0, sCanvas.width, sCanvas.height);
+            document.getElementById('preview-staff-sig').innerHTML = "(Tandatangan Staf)";
+        }
+
+        function updateStaffSigPreview() {
+            const blank = document.createElement('canvas'); blank.width = sCanvas.width; blank.height = sCanvas.height;
+            if(sCanvas.toDataURL() === blank.toDataURL()) return;
+            const dataUrl = sCanvas.toDataURL('image/png');
+            document.getElementById('preview-staff-sig').innerHTML = `<img src="${dataUrl}" style="width:100%; height:100%; object-fit:contain;">`;
+        }
+
+        // ==========================================
+        // IMAGE UPLOAD DENGAN DESCRIPTION
+        // ==========================================
+        let uploadedImages = []; // Array of object: { src: string, desc: string }
+        
+        function handleImageUpload(input) {
+            const files = Array.from(input.files);
+            if (!files.length) return;
+            const availableSlots = 6 - uploadedImages.length;
+            if (availableSlots <= 0) { customAlert("Maksimum 6 gambar telah dicapai."); input.value = ""; return; }
+            const filesToProcess = files.slice(0, availableSlots);
+            if (files.length > availableSlots) customAlert(`Hanya ${availableSlots} gambar ditambah.`);
+
+            let loadedCount = 0;
+            filesToProcess.forEach(file => {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    uploadedImages.push({ src: e.target.result, desc: '' });
+                    loadedCount++;
+                    if (loadedCount === filesToProcess.length) {
+                        renderEditorImages();
+                        renderImages();
+                    }
+                };
+                reader.readAsDataURL(file);
+            });
+            input.value = "";
+        }
+
+        function renderEditorImages() {
+            const list = document.getElementById('editorImageList');
+            list.innerHTML = '';
+            uploadedImages.forEach((imgObj, index) => {
+                const div = document.createElement('div');
+                div.className = 'editor-image-item';
+                div.innerHTML = `
+                    <img src="${imgObj.src}">
+                    <input type="text" placeholder="Nota gambar..." value="${imgObj.desc}" oninput="updateImageDesc(${index}, this.value)">
+                    <button type="button" onclick="removeImage(${index})" title="Padam">X</button>
+                `;
+                list.appendChild(div);
+            });
+        }
+
+        function updateImageDesc(index, val) {
+            uploadedImages[index].desc = val;
+            renderImages();
+        }
+
+        function renderImages() {
+            const grid = document.getElementById('photo-preview-grid');
+            grid.innerHTML = '';
+            for (let i = 0; i < 6; i++) {
+                const slot = document.createElement('div');
+                slot.className = 'photo-slot';
+                if (uploadedImages[i]) {
+                    slot.innerHTML = `
+                        <div class="photo-img-wrapper">
+                            <img src="${uploadedImages[i].src}">
+                        </div>
+                        <div class="photo-desc-preview">${uploadedImages[i].desc || '- Tiada Nota -'}</div>
+                    `;
+                } else {
+                    slot.innerHTML = `
+                        <div class="photo-img-wrapper"><div class="photo-placeholder">No Image</div></div>
+                        <div class="photo-desc-preview"></div>
+                    `;
+                }
+                grid.appendChild(slot);
+            }
+            setTimeout(applyPreviewScale, 300);
+        }
+
+        function removeImage(index) { 
+            uploadedImages.splice(index, 1); 
+            renderEditorImages();
+            renderImages(); 
+        }
+        function clearAllImages() { 
+            uploadedImages = []; 
+            renderEditorImages();
+            renderImages(); 
+        }
+
+        // ==========================================
+        // GENERATE PDF 
+        // ==========================================
+        function generatePDF() {
+            document.body.classList.add('is-exporting');
+            const element = document.getElementById('export-container');
+            const pages = document.querySelectorAll('.a4-page');
+
+            const originalGap = element.style.gap;
+            const originalTransform = element.style.transform;
+            const originalMarginBottom = element.style.marginBottom;
+            const originalStyles = [];
+            
+            pages.forEach(page => {
+                originalStyles.push({ height: page.style.height, overflow: page.style.overflow });
+                page.style.height = '296mm'; page.style.overflow = 'hidden'; 
+            });
+            
+            element.style.gap = '0px'; element.style.transform = 'none'; element.style.marginBottom = '0px';
+
+            const opt = {
+                margin: 0, filename: 'Laporan_Kerja_Voltake.pdf', image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2, useCORS: true, scrollY: 0 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+
+            const btn = document.getElementById('downloadBtn');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = 'Sedang Menjana...'; btn.disabled = true;
+
+            showTechLoader("COMPILING PDF DOCUMENT...");
+
+            html2pdf().set(opt).from(element).save().then(() => {
+                hideTechLoader();
+                document.body.classList.remove('is-exporting');
+                element.style.gap = originalGap || '30px'; element.style.transform = originalTransform; element.style.marginBottom = originalMarginBottom;
+                pages.forEach((page, i) => { page.style.height = originalStyles[i].height; page.style.overflow = originalStyles[i].overflow; });
+                btn.innerHTML = originalText; btn.disabled = false;
+                applyPreviewScale(); 
+            }).catch(err => {
+                hideTechLoader();
+                document.body.classList.remove('is-exporting');
+                element.style.gap = originalGap || '30px'; element.style.transform = originalTransform; element.style.marginBottom = originalMarginBottom;
+                pages.forEach((page, i) => { page.style.height = originalStyles[i].height; page.style.overflow = originalStyles[i].overflow; });
+                customAlert("Ralat semasa menjana PDF. Sila cuba lagi.");
+                btn.innerHTML = originalText; btn.disabled = false;
+                applyPreviewScale();
+            });
+        }
+
+        // ==========================================
+        // SUBMIT TO SYSTEM (FINAL HANTAR UNTUK KLIEN)
+        // ==========================================
+        function submitToSystem() {
+            document.body.classList.add('is-exporting');
+            const element = document.getElementById('export-container');
+            const pages = document.querySelectorAll('.a4-page');
+            
+            const originalGap = element.style.gap;
+            const originalTransform = element.style.transform;
+            const originalMarginBottom = element.style.marginBottom;
+            const originalStyles = [];
+            
+            pages.forEach(page => {
+                originalStyles.push({ height: page.style.height, overflow: page.style.overflow });
+                page.style.height = '296mm'; page.style.overflow = 'hidden';
+            });
+            element.style.gap = '0px'; element.style.transform = 'none'; element.style.marginBottom = '0px';
+
+            const opt = {
+                margin: 0, filename: 'Laporan_Kerja_Voltake.pdf', image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2, useCORS: true, scrollY: 0 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+
+            const btn = document.getElementById('submitSystemBtn');
+            const msgBox = document.getElementById('systemMessage');
+            btn.innerHTML = 'Menjana & Menghantar...'; btn.disabled = true;
+            msgBox.innerHTML = "Memproses laporan. Sila tunggu seketika..."; msgBox.style.background = "#f1c40f";
+
+            showTechLoader("PROCESSING REPORT & SYNCING...");
+
+            html2pdf().set(opt).from(element).output('datauristring').then(function(pdfBase64) {
+                document.body.classList.remove('is-exporting');
+                element.style.gap = originalGap || '30px';
+                element.style.transform = originalTransform;
+                element.style.marginBottom = originalMarginBottom;
+                pages.forEach((page, i) => {
+                    page.style.height = originalStyles[i].height;
+                    page.style.overflow = originalStyles[i].overflow;
+                });
+                applyPreviewScale();
+
+                const blank = document.createElement('canvas'); blank.width = sCanvas.width; blank.height = sCanvas.height;
+                let staffSigBase64 = "";
+                if(sCanvas.toDataURL() !== blank.toDataURL()) staffSigBase64 = sCanvas.toDataURL('image/png');
+
+                const payload = {
+                    action: "submit_report",
+                    staffToken: currentStaffToken,
+                    date: document.getElementById('f_date').value || '',
+                    po: document.getElementById('f_po').value || '',
+                    qt: document.getElementById('f_qt').value || '',
+                    mos: document.getElementById('f_mos').value || '',
+                    clientCompany: document.getElementById('f_client').value || '',
+                    title: document.getElementById('f_title').value || '',
+                    location: document.getElementById('f_loc').value || '',
+                    timeIn: document.getElementById('f_in').value || '',
+                    timeOut: document.getElementById('f_out').value || '',
+                    picName: document.getElementById('f_pic_name').value || '',
+                    picPhone: document.getElementById('f_pic_phone').value || '',
+                    signClientName: document.getElementById('f_sign_client_name').value || '',
+                    signClientPos: document.getElementById('f_sign_client_pos').value || '',
+                    signClientPhone: document.getElementById('f_sign_client_phone').value || '',
+                    jobDesc: document.getElementById('f_job_desc').value || '',
+                    issue: document.getElementById('f_issue').value || '',
+                    remarks: document.getElementById('f_remark').value || '',
+                    staffName: document.getElementById('f_staff_name').value || '',
+                    staffPosition: document.getElementById('f_staff_pos').value || '',
+                    staffSignatureBase64: staffSigBase64,
+                    draftPdfBase64: pdfBase64
+                };
+
+                fetch(WEB_APP_URL, { method: 'POST', body: JSON.stringify(payload) })
+                .then(response => response.json())
+                .then(data => {
+                    hideTechLoader();
+                    if(data.status === 'success') {
+                        msgBox.style.background = "#d4edda";
+                        const dateVal = document.getElementById('v_date')?.innerText || 'Tarikh Tidak Dinyatakan';
+                        const timeIn = document.getElementById('v_in')?.innerText || '';
+                        const timeOut = document.getElementById('v_out')?.innerText || '';
+                        const timeVal = (timeIn && timeOut) ? `${timeIn} - ${timeOut}` : (timeIn || timeOut || 'Masa Tidak Dinyatakan');
+                        
+                        window.currentApprovalTemplate = `Berikut merupakan Ground Work Report Form | ${dateVal} | ${timeVal}\nSila tekan link di bawah untuk approve kerja hari ini\n\n${data.approvalLink}\n\nVoltake TEAM`;
+                        window.currentPicPhone = document.getElementById('f_sign_client_phone').value || '';
+
+                        msgBox.innerHTML = `
+                            <span style="color:green;">Berjaya dihantar!</span><br>
+                            Berikan link ini kepada klien:<br>
+                            <a href="${data.approvalLink}" target="_blank" style="color:blue; word-break:break-all; font-weight:normal;">${data.approvalLink}</a>
+                            <div style="margin-top: 15px; display: flex; gap: 10px;">
+                                 <button onclick="copyToClipboardTemplate()" style="flex:1; background-color: #34495e; color: white; border: none; padding: 8px; border-radius: 4px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 5px; font-weight: bold; font-size:12px;">Copy</button>
+                                 <button onclick="sendToWhatsapp()" style="flex:1; background-color: #25D366; color: white; border: none; padding: 8px; border-radius: 4px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 5px; font-weight: bold; font-size:12px;">WhatsApp</button>
+                            </div>
+                        `;
+                    } else {
+                        msgBox.style.background = "#f8d7da"; msgBox.innerHTML = `<span style="color:red;">Ralat: ${data.message}</span>`;
+                    }
+                    btn.innerHTML = 'Hantar & Dapatkan Link Klien'; btn.disabled = false;
+                })
+                .catch(err => {
+                    hideTechLoader();
+                    msgBox.style.background = "#f8d7da"; msgBox.innerHTML = `<span style="color:red;">Ralat sistem atau Network Error. Pastikan URL Web App tepat.</span>`;
+                    btn.innerHTML = 'Hantar & Dapatkan Link Klien'; btn.disabled = false;
+                });
+            });
+        }
+
+        // FUNGSI COPY & WHATSAPP
+        function copyToClipboardTemplate() {
+            if (!window.currentApprovalTemplate) return;
+            const el = document.createElement('textarea');
+            el.value = window.currentApprovalTemplate;
+            document.body.appendChild(el); el.select();
+            try { 
+                document.execCommand('copy'); 
+                customAlert('Teks berjaya disalin! Sila paste kepada klien anda.'); 
+            } 
+            catch(err) { 
+                customAlert('Sistem tidak dapat menyalin teks secara automatik. Sila copy pautan di atas secara manual.'); 
+            }
+            document.body.removeChild(el);
+        }
+
+        function sendToWhatsapp() {
+            if (!window.currentApprovalTemplate) return;
+            let phone = window.currentPicPhone || "";
+            phone = phone.replace(/[^0-9]/g, '');
+            if (phone.startsWith('0')) phone = '6' + phone;
+            const encodedText = encodeURIComponent(window.currentApprovalTemplate);
+            let waUrl = phone ? `https://wa.me/${phone}?text=${encodedText}` : `https://api.whatsapp.com/send?text=${encodedText}`;
+            if(!phone) customAlert("Sila isi 'PIC Client Phone (Untuk Sign Bawah)' pada form untuk hantar secara automatik. Sistem akan membuka WhatsApp Web secara umum.");
+            window.open(waUrl, '_blank');
+        }
+    </script>
+</body>
+</html>
