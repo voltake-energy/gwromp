@@ -1173,7 +1173,14 @@
                 if (inputId === 'f_date' && value) {
                     try {
                         const d = new Date(value);
-                        value = d.toISOString().split('T')[0];
+                        // Set timezone explicitly to GMT+8 (Malaysia/Singapore)
+                        const formatter = new Intl.DateTimeFormat('en-CA', { 
+                            timeZone: 'Asia/Kuala_Lumpur', 
+                            year: 'numeric', 
+                            month: '2-digit', 
+                            day: '2-digit' 
+                        });
+                        value = formatter.format(d);
                     } catch(e) {}
                 }
                 el.value = value || '';
