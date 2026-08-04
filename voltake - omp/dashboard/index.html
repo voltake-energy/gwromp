@@ -12,7 +12,7 @@
     <link rel="apple-touch-icon" href="https://i.postimg.cc/nL1yRcWv/energy-services.png">
     <link rel="manifest" href="data:application/manifest+json;charset=utf-8,%7B%22name%22%3A%22Voltake%20Dashboard%22%2C%22short_name%22%3A%22Voltake%22%2C%22start_url%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%23f8fafc%22%2C%22theme_color%22%3A%22%230f172a%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22https%3A%2F%2Fi.postimg.cc%2FnL1yRcWv%2Fenergy-services.png%22%2C%22sizes%22%3A%22192x192%22%2C%22type%22%3A%22image%2Fpng%22%7D%2C%7B%22src%22%3A%22https%3A%2F%2Fi.postimg.cc%2FnL1yRcWv%2Fenergy-services.png%22%2C%22sizes%22%3A%22512x512%22%2C%22type%22%3A%22image%2Fpng%22%7D%5D%7D">
 
-    <title>OMP GWR Dashboard</title>
+    <title>Engineering Ops Dashboard</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Chart.js -->
@@ -230,7 +230,7 @@
         </div>
 
         <!-- Scrollable Content Area -->
-        <div class="flex-1 overflow-y-auto p-6">
+        <div class="flex-1 overflow-y-auto p-6 relative">
             
             <!-- TAB 1: OVERVIEW -->
             <div id="tab-overview" class="tab-content active">
@@ -430,10 +430,20 @@
             <!-- TAB 5: DOCUMENT -->
             <div id="tab-documents" class="tab-content">
                 <div class="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden">
-                    <div class="p-6 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center">
+                    <div class="p-6 border-b border-slate-100 bg-slate-50/50 flex flex-col md:flex-row md:justify-between md:items-center gap-4">
                         <h3 class="text-base font-semibold text-slate-800">Document & Approval Tracking</h3>
-                        <div class="flex space-x-2">
-                             <input type="text" id="search-doc" class="bg-white border border-slate-300 text-slate-900 text-sm rounded-lg focus:ring-brand-500 focus:border-brand-500 block w-64 p-2" placeholder="Search Report ID..." onkeyup="filterDocs()">
+                        <div class="flex flex-col sm:flex-row gap-2">
+                            <select id="filter-doc-status" class="bg-white border border-slate-300 text-slate-900 text-sm rounded-lg focus:ring-brand-500 focus:border-brand-500 block w-full sm:w-40 p-2 cursor-pointer" onchange="filterDocs()">
+                                <option value="">All Statuses</option>
+                                <option value="approved">Client Signed</option>
+                                <option value="pending">Pending Sign</option>
+                            </select>
+                            <div class="relative w-full sm:w-64">
+                                <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                                    <i class="fa-solid fa-search text-slate-400"></i>
+                                </div>
+                                <input type="text" id="search-doc" class="bg-white border border-slate-300 text-slate-900 text-sm rounded-lg focus:ring-brand-500 focus:border-brand-500 block w-full pl-10 p-2" placeholder="Search Report ID..." onkeyup="filterDocs()">
+                            </div>
                         </div>
                     </div>
                     <div class="overflow-x-auto">
@@ -464,9 +474,39 @@
         </div>
     </main>
 
+    <!-- Custom Error Modal -->
+    <div id="error-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-[110] hidden flex items-center justify-center opacity-0 transition-opacity duration-300" style="transition: opacity 0.3s ease;">
+        <div class="bg-white rounded-xl shadow-xl p-6 max-w-sm w-full mx-4 transform transition-all scale-95" id="error-modal-content">
+            <div class="flex items-center justify-center w-12 h-12 rounded-full bg-red-100 mb-4 mx-auto">
+                <i class="fa-solid fa-triangle-exclamation text-red-600 text-xl"></i>
+            </div>
+            <h3 class="text-lg font-bold text-slate-800 text-center mb-2">Notice</h3>
+            <p id="error-message" class="text-sm text-slate-600 text-center mb-6">Something went wrong.</p>
+            <button onclick="closeErrorModal()" class="w-full bg-slate-800 hover:bg-slate-900 text-white font-medium py-2 px-4 rounded-lg transition-colors">Close</button>
+        </div>
+    </div>
+
+    <!-- Confirm Delete Modal -->
+    <div id="confirm-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-[110] hidden flex items-center justify-center opacity-0 transition-opacity duration-300" style="transition: opacity 0.3s ease;">
+        <div class="bg-white rounded-xl shadow-xl p-6 max-w-sm w-full mx-4 transform transition-all scale-95" id="confirm-modal-content">
+            <div class="flex items-center justify-center w-12 h-12 rounded-full bg-red-100 mb-4 mx-auto">
+                <i class="fa-solid fa-trash-can text-red-600 text-xl"></i>
+            </div>
+            <h3 class="text-lg font-bold text-slate-800 text-center mb-2">Pengesahan Padam</h3>
+            <p class="text-sm text-slate-600 text-center mb-6">Adakah anda pasti mahu memadam laporan <span id="delete-target-id" class="font-bold text-slate-800"></span>? Tindakan ini tidak boleh dikembalikan.</p>
+            <div class="flex space-x-3">
+                <button onclick="closeConfirmModal()" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium py-2 px-4 rounded-lg transition-colors">Batal</button>
+                <button onclick="executeDelete()" class="flex-1 bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-lg transition-colors flex items-center justify-center">
+                    <i class="fa-solid fa-trash mr-2"></i> Padam
+                </button>
+            </div>
+        </div>
+    </div>
+
     <script>
         // Data Source
         const SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQlcSLYtFaYCQ5urEIjQuF0LXkdvk_mSfRAM7UBnGSSBHOLzz5XuxQEl51XCR6m8qRgx5P9LrFlZBIo/pub?output=csv';
+        const APP_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby2XnVx4gVoqmPZdX-HaIawOmxKLXDXN7e1zaF7bcudJQ7bNWmp-2JSgS4f-JYuOCdE/exec';
         
         // Global State
         let globalData = [];
@@ -489,6 +529,95 @@
             if(s.includes('pending') || s.includes('draft')) return `<span class="px-2.5 py-1 text-xs font-medium rounded-full bg-amber-100 text-amber-700 border border-amber-200">${status || 'Pending'}</span>`;
             if(s.includes('cancel') || s.includes('reject')) return `<span class="px-2.5 py-1 text-xs font-medium rounded-full bg-red-100 text-red-700 border border-red-200">${status || 'Rejected'}</span>`;
             return `<span class="px-2.5 py-1 text-xs font-medium rounded-full bg-slate-100 text-slate-700 border border-slate-200">${status || 'N/A'}</span>`;
+        }
+
+        // Custom Error Modal Logic
+        function showError(msg) {
+            const modal = document.getElementById('error-modal');
+            const content = document.getElementById('error-modal-content');
+            document.getElementById('error-message').innerText = msg;
+            
+            modal.classList.remove('hidden');
+            // Small delay to allow display block to apply before animating opacity
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+                content.classList.remove('scale-95');
+                content.classList.add('scale-100');
+            }, 10);
+        }
+
+        function closeErrorModal() {
+            const modal = document.getElementById('error-modal');
+            const content = document.getElementById('error-modal-content');
+            
+            modal.classList.add('opacity-0');
+            content.classList.remove('scale-100');
+            content.classList.add('scale-95');
+            
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 300); // match transition duration
+        }
+
+        // Delete Report Modal Logic
+        let reportToDelete = null;
+
+        function confirmDelete(reportId) {
+            reportToDelete = reportId;
+            document.getElementById('delete-target-id').innerText = reportId;
+            
+            const modal = document.getElementById('confirm-modal');
+            const content = document.getElementById('confirm-modal-content');
+            
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+                content.classList.remove('scale-95');
+                content.classList.add('scale-100');
+            }, 10);
+        }
+
+        function closeConfirmModal() {
+            const modal = document.getElementById('confirm-modal');
+            const content = document.getElementById('confirm-modal-content');
+            
+            modal.classList.add('opacity-0');
+            content.classList.remove('scale-100');
+            content.classList.add('scale-95');
+            
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                reportToDelete = null;
+            }, 300);
+        }
+
+        function executeDelete() {
+            if(!reportToDelete) return;
+            
+            closeConfirmModal();
+            document.getElementById('loading-overlay').style.display = 'flex'; // Tunjuk sistem loading
+            
+            fetch(APP_SCRIPT_URL, {
+                method: 'POST',
+                body: JSON.stringify({
+                    action: 'delete_report',
+                    reportId: reportToDelete
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if(data.status === 'success') {
+                    // Berjaya delete, refresh data
+                    fetchData();
+                } else {
+                    document.getElementById('loading-overlay').style.display = 'none';
+                    showError("Gagal memadam: " + data.message);
+                }
+            })
+            .catch(err => {
+                document.getElementById('loading-overlay').style.display = 'none';
+                showError("Ralat rangkaian: Gagal menghubungi pangkalan data.");
+            });
         }
 
         // Mobile Sidebar Toggle Logic
@@ -578,7 +707,7 @@
                 },
                 error: function(err) {
                     console.error("Error fetching CSV:", err);
-                    alert("Failed to load data. Please check connection or Sheet visibility.");
+                    showError("Failed to load data. Please check connection or Sheet visibility.");
                     document.getElementById('loading-overlay').style.display = 'none';
                 }
             });
@@ -963,161 +1092,236 @@
             });
 
             // Chart: Client Distribution
-        const clientStats = {};
-        data.forEach(d => {
-            if(d.ClientCompany) {
-                clientStats[d.ClientCompany] = (clientStats[d.ClientCompany] || 0) + 1;
-            }
-        });
-        // Top 5 clients + Others
-        let clientArr = Object.keys(clientStats).map(c => ({name: c, count: clientStats[c]})).sort((a,b) => b.count - a.count);
-        let labels = [];
-        let counts = [];
-        if(clientArr.length > 5) {
-            labels = clientArr.slice(0,5).map(c => c.name.substring(0, 15) + (c.name.length > 15 ? '...' : ''));
-            counts = clientArr.slice(0,5).map(c => c.count);
-            const others = clientArr.slice(5).reduce((sum, c) => sum + c.count, 0);
-            labels.push('Others');
-            counts.push(others);
-        } else {
-            labels = clientArr.map(c => c.name);
-            counts = clientArr.map(c => c.count);
-        }
-
-        const ctxClient = document.getElementById('clientChart').getContext('2d');
-        if(charts.client) charts.client.destroy();
-        charts.client = new Chart(ctxClient, {
-            type: 'pie',
-            data: {
-                labels: labels,
-                datasets: [{
-                    data: counts,
-                    backgroundColor: ['#0ea5e9', '#8b5cf6', '#10b981', '#f59e0b', '#64748b', '#cbd5e1'],
-                    borderWidth: 2, borderColor: '#ffffff'
-                }]
-            },
-            options: {
-                responsive: true, maintainAspectRatio: false,
-                plugins: { legend: { position: 'right', labels: { boxWidth: 12, font: {size: 11} } } }
-            }
-        });
-    }
-
-    // Utility for PDF Links
-    function getPdfUrl(idOrUrl) {
-        if (!idOrUrl) return '#';
-        // Check if it's already a full URL
-        if (idOrUrl.startsWith('http')) return idOrUrl;
-        // Otherwise assume it is a Google Drive File ID
-        return `https://drive.google.com/file/d/${idOrUrl}/view`;
-    }
-
-    // Utility for WhatsApp Phone Number Formatting
-    function formatPhoneForWa(phone) {
-        if (!phone) return '';
-        // Remove spaces, dashes, parentheses
-        let cleaned = phone.replace(/[\s\-\(\)]/g, '');
-        // If it starts with 0 (Malaysia), replace with 60
-        if (cleaned.startsWith('0')) {
-            cleaned = '60' + cleaned.substring(1);
-        }
-        return cleaned;
-    }
-
-    // ----- RENDER DOCUMENTS -----
-    function renderDocuments(data) {
-        const tbody = document.getElementById('document-table-body');
-        tbody.innerHTML = '';
-        
-        data.forEach(row => {
-            // Determine Doc Status
-            const hasDraft = !!(row.DraftPdfId && row.DraftPdfId.trim() !== '');
-            const hasFinal = !!(row.FinalPdfId && row.FinalPdfId.trim() !== '');
-            const isApproved = (row.Status || '').toLowerCase() === 'approved' || (row.Status || '').toLowerCase() === 'completed';
-
-            // PDF Links
-            const draftUrl = hasDraft ? getPdfUrl(row.DraftPdfId.trim()) : '#';
-            const finalUrl = hasFinal ? getPdfUrl(row.FinalPdfId.trim()) : '#';
-
-            // Message Templates logic
-            const clientName = row.ClientSignName || row.PICName || 'Tuan/Puan';
-            const projectName = row.ProjectTitle || 'projek berkaitan';
-            const rawPhone = row.ClientPhone || row.PICPhone || '';
-            const waPhone = formatPhoneForWa(rawPhone);
-            const emailAddr = row.ClientEmail || '';
-            
-            let subject = '';
-            let bodyMsg = '';
-
-            if (isApproved) {
-                subject = `GWR Selesai - ${row.ReportID}`;
-                bodyMsg = `Hi ${clientName},\n\nTerima kasih kerana telah menyemak dan menandatangani GWR untuk projek ${projectName}.\n\nAnda boleh merujuk salinan akhir kerja anda.\n\nTerima kasih dari Voltake.`;
+            const clientStats = {};
+            data.forEach(d => {
+                if(d.ClientCompany) {
+                    clientStats[d.ClientCompany] = (clientStats[d.ClientCompany] || 0) + 1;
+                }
+            });
+            // Top 5 clients + Others
+            let clientArr = Object.keys(clientStats).map(c => ({name: c, count: clientStats[c]})).sort((a,b) => b.count - a.count);
+            let labels = [];
+            let counts = [];
+            if(clientArr.length > 5) {
+                labels = clientArr.slice(0,5).map(c => c.name.substring(0, 15) + (c.name.length > 15 ? '...' : ''));
+                counts = clientArr.slice(0,5).map(c => c.count);
+                const others = clientArr.slice(5).reduce((sum, c) => sum + c.count, 0);
+                labels.push('Others');
+                counts.push(others);
             } else {
-                subject = `Tindakan Diperlukan: GWR Belum Ditandatangani - ${row.ReportID}`;
-                bodyMsg = `Hi ${clientName},\n\nSila maklum bahawa anda masih tidak lagi selesai menandatangani GWR untuk projek ${projectName}. Sila semak draf laporan terkini dan berikan kelulusan anda supaya kami dapat memproses dokumen akhir.\n\nTerima kasih dari Voltake.`;
+                labels = clientArr.map(c => c.name);
+                counts = clientArr.map(c => c.count);
             }
 
-            // URL Encode for mailto and wa.me
-            const encodedSubject = encodeURIComponent(subject);
-            const encodedBody = encodeURIComponent(bodyMsg);
+            const ctxClient = document.getElementById('clientChart').getContext('2d');
+            if(charts.client) charts.client.destroy();
+            charts.client = new Chart(ctxClient, {
+                type: 'pie',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: counts,
+                        backgroundColor: ['#0ea5e9', '#8b5cf6', '#10b981', '#f59e0b', '#64748b', '#cbd5e1'],
+                        borderWidth: 2, borderColor: '#ffffff'
+                    }]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: { legend: { position: 'right', labels: { boxWidth: 12, font: {size: 11} } } }
+                }
+            });
+        }
+
+        // Utility for PDF Links
+        function getPdfUrl(idOrUrl) {
+            if (!idOrUrl) return '#';
+            // Check if it's already a full URL
+            if (idOrUrl.startsWith('http')) return idOrUrl;
+            // Otherwise assume it is a Google Drive File ID
+            return `https://drive.google.com/file/d/${idOrUrl}/view`;
+        }
+
+        // Utility for WhatsApp Phone Number Formatting
+        function formatPhoneForWa(phone) {
+            if (!phone) return '';
+            // Remove spaces, dashes, parentheses
+            let cleaned = phone.replace(/[\s\-\(\)]/g, '');
+            // If it starts with 0 (Malaysia), replace with 60
+            if (cleaned.startsWith('0')) {
+                cleaned = '60' + cleaned.substring(1);
+            }
+            return cleaned;
+        }
+
+        // Fungsi Salin (Copy to Clipboard) serasi Iframe
+        function copyToClipboard(text, btnElement) {
+            const textArea = document.createElement("textarea");
+            textArea.value = text;
+            textArea.style.position = "fixed"; // Elak skrin dari scroll
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
             
-            const mailtoLink = `mailto:${emailAddr}?subject=${encodedSubject}&body=${encodedBody}`;
-            const waLink = waPhone ? `https://wa.me/${waPhone}?text=${encodedBody}` : '#';
+            try {
+                document.execCommand('copy');
+                if (btnElement) {
+                    const originalHtml = btnElement.innerHTML;
+                    btnElement.innerHTML = '<i class="fa-solid fa-check mr-1 text-emerald-500"></i> Berjaya Salin';
+                    btnElement.classList.add('bg-emerald-50', 'text-emerald-700', 'border-emerald-200');
+                    btnElement.classList.remove('bg-slate-100', 'text-slate-600', 'border-slate-200');
+                    
+                    setTimeout(() => {
+                        btnElement.innerHTML = originalHtml;
+                        btnElement.classList.remove('bg-emerald-50', 'text-emerald-700', 'border-emerald-200');
+                        btnElement.classList.add('bg-slate-100', 'text-slate-600', 'border-slate-200');
+                    }, 2500);
+                }
+            } catch (err) {
+                console.error('Gagal untuk salin URL', err);
+                showError('Gagal menyalin URL. Sila cuba lagi.');
+            }
+            document.body.removeChild(textArea);
+        }
 
-            tbody.innerHTML += `
-                <tr class="hover:bg-slate-50 border-b border-slate-50 transition">
-                    <td class="px-6 py-4">
-                        <div class="font-bold text-brand-600">${row.ReportID || '-'}</div>
-                        <div class="text-xs text-slate-500 mt-1">${row.Date || '-'}</div>
-                    </td>
-                    <td class="px-6 py-4">
-                        <div class="text-slate-800 font-medium">${clientName}</div>
-                        <div class="text-xs text-slate-500">${row.ClientCompany || '-'}</div>
-                    </td>
-                    <td class="px-6 py-4">
-                        ${hasDraft 
-                            ? `<a href="${draftUrl}" target="_blank" class="inline-flex text-brand-600 bg-brand-50 hover:bg-brand-100 px-3 py-1.5 rounded text-xs font-medium border border-brand-200 transition items-center w-max"><i class="fa-regular fa-file-pdf mr-1.5 text-red-500"></i> View Draft</a>` 
-                            : `<span class="text-xs text-slate-400 italic">No Draft</span>`}
-                    </td>
-                    <td class="px-6 py-4">
-                        ${isApproved 
-                            ? `<span class="flex items-center text-emerald-600 text-sm font-medium"><i class="fa-solid fa-check-circle mr-1.5"></i> Client Signed</span>`
-                            : `<span class="flex items-center text-amber-500 text-sm font-medium"><i class="fa-regular fa-clock mr-1.5"></i> Pending Sign</span>`}
+        // ----- RENDER DOCUMENTS -----
+        function renderDocuments(data) {
+            const tbody = document.getElementById('document-table-body');
+            tbody.innerHTML = '';
+            
+            data.forEach(row => {
+                // Determine Doc Status
+                const hasDraft = !!(row.DraftPdfId && row.DraftPdfId.trim() !== '');
+                const hasFinal = !!(row.FinalPdfId && row.FinalPdfId.trim() !== '');
+                const isApproved = (row.Status || '').toLowerCase() === 'approved' || (row.Status || '').toLowerCase() === 'completed';
+
+                // PDF Links
+                const draftUrl = hasDraft ? getPdfUrl(row.DraftPdfId.trim()) : '#';
+                const finalUrl = hasFinal ? getPdfUrl(row.FinalPdfId.trim()) : '#';
+
+                // Message Templates logic
+                const clientName = row.ClientSignName || row.PICName || 'Tuan/Puan';
+                const projectName = row.ProjectTitle || 'projek berkaitan';
+                const rawPhone = row.ClientPhone || row.PICPhone || '';
+                const waPhone = formatPhoneForWa(rawPhone);
+                const emailAddr = row.ClientEmail || '';
+                
+                const docDate = row.Date || 'Tarikh Tidak Dinyatakan';
+                const docTime = row.TimeOut || row.TimeIn || 'Masa Tidak Dinyatakan';
+                const approvalUrl = row.ApprovalToken ? `${APP_SCRIPT_URL}?token=${row.ApprovalToken.trim()}` : '';
+
+                let subject = '';
+                let bodyMsg = '';
+                let waBodyMsg = '';
+
+                if (isApproved) {
+                    subject = `GWR Selesai - ${row.ReportID}`;
+                    bodyMsg = `Hi ${clientName},\n\nTerima kasih kerana telah menyemak dan menandatangani GWR untuk projek ${projectName}.\n\nAnda boleh merujuk salinan akhir kerja anda.\n\nTerima kasih dari Voltake.`;
+                    waBodyMsg = bodyMsg;
+                } else {
+                    subject = `Tindakan Diperlukan: GWR Belum Ditandatangani - ${row.ReportID}`;
+                    bodyMsg = `Hi ${clientName},\n\nSila maklum bahawa anda masih tidak lagi selesai menandatangani GWR untuk projek ${projectName}. Sila semak draf laporan terkini dan berikan kelulusan anda supaya kami dapat memproses dokumen akhir.\n\nSila klik link ini untuk meluluskan: ${approvalUrl}\n\nTerima kasih dari Voltake.`;
+                    
+                    // Mesej Custom WhatsApp untuk Pending Sign
+                    waBodyMsg = `Berikut merupakan Ground Work Report Form | ${docDate} | ${docTime}\nSila tekan link di bawah untuk approve kerja hari ini\n\n${approvalUrl}\n\nVOLTAKE TEAM`;
+                }
+
+                // URL Encode for mailto and wa.me
+                const encodedSubject = encodeURIComponent(subject);
+                const encodedBody = encodeURIComponent(bodyMsg);
+                const encodedWaBody = encodeURIComponent(waBodyMsg);
+                
+                const mailtoLink = `mailto:${emailAddr}?subject=${encodedSubject}&body=${encodedBody}`;
+                const waLink = waPhone ? `https://wa.me/${waPhone}?text=${encodedWaBody}` : '#';
+
+                // HTML Approval Status
+                let approvalStatusHtml = '';
+                if (isApproved) {
+                    approvalStatusHtml = `
+                        <span class="flex items-center text-emerald-600 text-sm font-medium"><i class="fa-solid fa-check-circle mr-1.5"></i> Client Signed</span>
                         <div class="text-[10px] text-slate-400 font-mono mt-1 break-all" style="max-width: 150px;">Token: ${row.ApprovalToken || 'N/A'}</div>
-                    </td>
-                    <td class="px-6 py-4">
-                        ${hasFinal 
-                            ? `<a href="${finalUrl}" target="_blank" class="inline-flex text-slate-700 bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded text-xs font-medium border border-slate-300 transition items-center w-max"><i class="fa-solid fa-file-pdf mr-1.5 text-red-600"></i> Download Final</a>` 
-                            : `<span class="text-xs text-slate-400 italic">Not Generated</span>`}
-                    </td>
-                    <td class="px-6 py-4 text-right">
-                        <a href="${emailAddr ? mailtoLink : '#'}" 
-                           class="inline-block ${emailAddr ? 'text-slate-500 hover:text-brand-600' : 'text-slate-300 cursor-not-allowed'} transition p-2" 
-                           title="${emailAddr ? 'Hantar Email' : 'Tiada Email Client'}">
-                            <i class="fa-solid fa-envelope text-lg"></i>
-                        </a>
-                        <a href="${waLink}" target="${waPhone ? '_blank' : '_self'}" 
-                           class="inline-block ${waPhone ? 'text-slate-500 hover:text-green-500' : 'text-slate-300 cursor-not-allowed'} transition p-2" 
-                           title="${waPhone ? 'Hantar WhatsApp' : 'Tiada Nombor Telefon'}">
-                            <i class="fa-brands fa-whatsapp text-lg"></i>
-                        </a>
-                    </td>
-                </tr>
-            `;
-        });
-    }
+                    `;
+                } else {
+                    approvalStatusHtml = `
+                        <span class="flex items-center text-amber-500 text-sm font-medium"><i class="fa-regular fa-clock mr-1.5"></i> Pending Sign</span>
+                        ${row.ApprovalToken ? `
+                        <div class="mt-2">
+                            <button onclick="copyToClipboard('${approvalUrl}', this)" class="text-[10px] bg-slate-100 hover:bg-slate-200 text-slate-600 font-medium py-1 px-2 rounded border border-slate-200 transition flex items-center w-max cursor-pointer" title="Salin URL Kelulusan">
+                                <i class="fa-regular fa-copy mr-1"></i> Salin Link Approval
+                            </button>
+                        </div>
+                        ` : `<div class="text-[10px] text-slate-400 mt-1 italic">Tiada Token</div>`}
+                    `;
+                }
 
-    function filterDocs() {
+                tbody.innerHTML += `
+                    <tr class="hover:bg-slate-50 border-b border-slate-50 transition">
+                        <td class="px-6 py-4">
+                            <div class="font-bold text-brand-600">${row.ReportID || '-'}</div>
+                            <div class="text-xs text-slate-500 mt-1">${row.Date || '-'}</div>
+                        </td>
+                        <td class="px-6 py-4">
+                            <div class="text-slate-800 font-medium">${clientName}</div>
+                            <div class="text-xs text-slate-500">${row.ClientCompany || '-'}</div>
+                        </td>
+                        <td class="px-6 py-4">
+                            ${hasDraft 
+                                ? `<a href="${draftUrl}" target="_blank" class="inline-flex text-brand-600 bg-brand-50 hover:bg-brand-100 px-3 py-1.5 rounded text-xs font-medium border border-brand-200 transition items-center w-max"><i class="fa-regular fa-file-pdf mr-1.5 text-red-500"></i> View Draft</a>` 
+                                : `<span class="text-xs text-slate-400 italic">No Draft</span>`}
+                        </td>
+                        <td class="px-6 py-4">
+                            ${approvalStatusHtml}
+                        </td>
+                        <td class="px-6 py-4">
+                            ${hasFinal 
+                                ? `<a href="${finalUrl}" target="_blank" class="inline-flex text-slate-700 bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded text-xs font-medium border border-slate-300 transition items-center w-max"><i class="fa-solid fa-file-pdf mr-1.5 text-red-600"></i> Download Final</a>` 
+                                : `<span class="text-xs text-slate-400 italic">Not Generated</span>`}
+                        </td>
+                        <td class="px-6 py-4 text-right whitespace-nowrap">
+                            <button onclick="confirmDelete('${row.ReportID}')" class="inline-block text-slate-300 hover:text-red-500 transition p-2 mr-1" title="Padam Laporan">
+                                <i class="fa-solid fa-trash-can text-lg"></i>
+                            </button>
+                            <a href="${emailAddr ? mailtoLink : '#'}" 
+                               class="inline-block ${emailAddr ? 'text-slate-500 hover:text-brand-600' : 'text-slate-300 cursor-not-allowed'} transition p-2" 
+                               title="${emailAddr ? 'Hantar Email' : 'Tiada Email Client'}">
+                                <i class="fa-solid fa-envelope text-lg"></i>
+                            </a>
+                            <a href="${waLink}" target="${waPhone ? '_blank' : '_self'}" 
+                               class="inline-block ${waPhone ? 'text-slate-500 hover:text-green-500' : 'text-slate-300 cursor-not-allowed'} transition p-2" 
+                               title="${waPhone ? 'Hantar WhatsApp' : 'Tiada Nombor Telefon'}">
+                                <i class="fa-brands fa-whatsapp text-lg"></i>
+                            </a>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        function filterDocs() {
             const searchVal = document.getElementById('search-doc').value.toLowerCase();
+            const statusVal = document.getElementById('filter-doc-status').value;
+            
             // Use dateFilteredData instead of globalData
             const filteredData = dateFilteredData.filter(row => {
-                return (row.ReportID || '').toLowerCase().includes(searchVal) || 
-                       (row.ClientCompany || '').toLowerCase().includes(searchVal);
+                const matchSearch = (row.ReportID || '').toLowerCase().includes(searchVal) || 
+                                    (row.ClientCompany || '').toLowerCase().includes(searchVal);
+                
+                const rowStatus = (row.Status || '').toLowerCase();
+                const isApproved = rowStatus === 'approved' || rowStatus === 'completed';
+                
+                let matchStatus = true;
+                if (statusVal === 'approved') {
+                    matchStatus = isApproved;
+                } else if (statusVal === 'pending') {
+                    matchStatus = !isApproved; // Includes 'Draft' or 'Pending'
+                }
+                
+                return matchSearch && matchStatus;
             });
             renderDocuments(filteredData);
         }
 
     </script>
 </body>
+
 </html>
 
