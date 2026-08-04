@@ -3,20 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Ground Work Report Form - Voltake Energy (OMP)</title>
+    <title>Ground Work Report Form - Voltake Energy</title>
     
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="https://i.postimg.cc/nL1yRcWv/energy-services.png">
     
-    <!-- PWA Meta Tags & Web App Manifest (Untuk Android & iOS Native App Feel) -->
+    <!-- PWA Meta Tags & Web App Manifest -->
     <meta name="theme-color" content="#2c3e50">
     <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Voltake Form">
     <link rel="apple-touch-icon" href="https://i.postimg.cc/nL1yRcWv/energy-services.png">
-    <link rel="manifest" href='data:application/manifest+json,{"name":"Ground Work Report Form - Voltake Energy (OMP)","short_name":"Voltake Form","start_url":".","display":"standalone","background_color":"#2c3e50","theme_color":"#2c3e50","icons":[{"src":"https://i.postimg.cc/nL1yRcWv/energy-services.png","sizes":"192x192","type":"image/png"},{"src":"https://i.postimg.cc/nL1yRcWv/energy-services.png","sizes":"512x512","type":"image/png"}]}'>
+    <link rel="manifest" href="data:application/manifest+json;base64,eyJuYW1lIjoiR3JvdW5kIFdvcmsgUmVwb3J0IEZvcm0gLSBWb2x0YWtlIEVuZXJneSIsInNob3J0X25hbWUiOiJWb2x0YWtlIEZvcm0iLCJzdGFydF91cmwiOiIuIiwiZGlzcGxheSI6InN0YW5kYWxvbmUiLCJiYWNrZ3JvdW5kX2NvbG9yIjoiIzJjM2U1MCIsInRoZW1lX2NvbG9yIjoiIzJjM2U1MCIsImljb25zIjpbeyJzcmMiOiJodHRwczovL2kucG9zdGltZy5jYy9uTDF5UmNXdi9lbmVyZ3ktc2VydmljZXMucG5nIiwic2l6ZXMiOiIxOTJ4MTkyIiwidHlwZSI6ImltYWdlL3BuZyJ9LHsic3JjIjoiaHR0cHM6Ly9pLnBvc3RpbWcuY2MvbkwxeVJjV3YvZW5lcmd5LXNlcnZpY2VzLnBuZyIsInNpemVzIjoiNTEyeDUxMiIsInR5cGUiOiJpbWFnZS9wbmcifV19">
     
-    <!-- 1. Import Library html2pdf.js -->
+    <!-- Import Library html2pdf.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
     <style>
@@ -31,7 +32,7 @@
             --color-border: #ccc;
             --color-white: #fff;
             --a4-width: 210mm;
-            --a4-height: 296mm; /* Saiz A4 Fix */
+            --a4-height: 296mm;
         }
 
         * {
@@ -135,7 +136,7 @@
             border-radius: 4px;
             border: 1px solid #85c1e9;
             margin-bottom: 15px;
-            display: none; /* Default hidden */
+            display: none;
         }
         .search-po-box input {
             width: 100%;
@@ -234,23 +235,23 @@
         }
         .a4-page:last-child { page-break-after: avoid; }
 
-        /* Report Layout Styles (DIKEMASKINI: HEADER LEBIH KECIL & PADAT) */
+        /* Report Layout Styles */
         .report-header {
             display: flex;
-            align-items: center; /* Ubah ke center supaya logo & info seimbang */
+            align-items: center;
             justify-content: space-between;
             border-bottom: 2px solid #000;
-            padding-bottom: 5px; /* Dikurangkan */
-            margin-bottom: 8px; /* Dikurangkan */
+            padding-bottom: 5px;
+            margin-bottom: 8px;
         }
-        .logo-container { width: 85px; /* Dikurangkan dari 110px */ height: auto; }
+        .logo-container { width: 85px; height: auto; }
         .logo-container img { width: 100%; height: auto; display: block; }
         .company-info { text-align: right; flex: 1; margin-left: 15px; }
-        .company-name { font-size: 13px; /* Dikurangkan */ font-weight: 800; color: #000; text-transform: uppercase; margin-bottom: 1px; }
-        .company-reg { font-size: 9px; /* Dikurangkan */ font-weight:bold; margin-bottom: 3px; }
-        .contact-row { display: flex; align-items: center; justify-content: flex-end; font-size: 9px; /* Dikurangkan */ color: #444; margin-bottom: 1px; gap: 4px; }
-        .contact-icon { width: 10px; /* Dikurangkan */ height: 10px; stroke: #444; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
-        .report-title { font-size: 15px; /* Dikurangkan */ font-weight: 700; text-align: center; text-transform: uppercase; margin: 5px 0 10px 0; text-decoration: underline; }
+        .company-name { font-size: 13px; font-weight: 800; color: #000; text-transform: uppercase; margin-bottom: 1px; }
+        .company-reg { font-size: 9px; font-weight:bold; margin-bottom: 3px; }
+        .contact-row { display: flex; align-items: center; justify-content: flex-end; font-size: 9px; color: #444; margin-bottom: 1px; gap: 4px; }
+        .contact-icon { width: 10px; height: 10px; stroke: #444; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+        .report-title { font-size: 15px; font-weight: 700; text-align: center; text-transform: uppercase; margin: 5px 0 10px 0; text-decoration: underline; }
         
         .section-box { border: 1px solid #000; margin-bottom: 10px; }
         .section-title { background-color: #eee; border-bottom: 1px solid #000; padding: 4px 8px; font-weight: 700; font-size: 11px; text-transform: uppercase; }
@@ -261,6 +262,20 @@
         .field-value { padding: 5px 8px; flex-grow: 1; white-space: pre-wrap; min-height: 24px; }
         .content-box { padding: 8px; min-height: 100px; white-space: pre-wrap; font-size: 11px; vertical-align: top; }
         .content-box.small { min-height: 50px; }
+
+        /* Job Desc Dynamic Table Styles */
+        .job-table { width: 100%; border-collapse: collapse; font-size: 11px; table-layout: fixed; margin: 0; }
+        .job-table th { background-color: #eee; border-bottom: 1px solid #000; font-weight: 700; text-transform: uppercase; }
+        .job-table td { 
+            padding: 4px 8px; 
+            vertical-align: top; 
+            white-space: pre-wrap; 
+            color: #000; 
+            border-bottom: 1px solid #ccc; 
+        }
+        .job-table tr:last-child td { border-bottom: none; }
+        .desc-col { width: 85%; border-right: 1px solid #000; }
+        .remark-col { width: 15%; text-align: center; font-weight: bold; }
 
         /* Photo Grid & Description Styles */
         .photo-grid {
@@ -285,7 +300,7 @@
         }
         .photo-img-wrapper {
             flex: 1;
-            min-height: 0; /* Ensures the flex item can shrink without overflowing */
+            min-height: 0;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -296,7 +311,7 @@
         .photo-img-wrapper img { 
             width: 100%; 
             height: 100%; 
-            object-fit: contain; /* Prevent cropping on important work photos */
+            object-fit: contain;
         }
         .photo-desc-preview {
             margin-top: 4px;
@@ -308,14 +323,14 @@
             font-weight: 600;
             min-height: 16px;
             display: -webkit-box;
-            -webkit-line-clamp: 2; /* Maximum 2 lines only */
+            -webkit-line-clamp: 2;
             -webkit-box-orient: vertical;
             overflow: hidden;
             word-wrap: break-word;
         }
         .photo-placeholder { color: #ccc; font-size: 11px; text-align: center; }
 
-        /* Editor Image List Items (Kiri) */
+        /* Editor Image List Items */
         .editor-image-item {
             display: flex; gap: 8px; align-items: center; background: #fff; padding: 6px; border: 1px solid #ccc; border-radius: 4px; margin-bottom: 5px;
         }
@@ -344,7 +359,7 @@
         .btn-save-draft { background-color: #f39c12; margin-top: 10px; }
         .btn-save-draft:hover { background-color: #d68910; }
 
-        /* Butang Dashboard (NEW) */
+        /* Butang Dashboard */
         .btn-dashboard {
             display: flex;
             align-items: center;
@@ -372,7 +387,7 @@
         }
         .modal-content {
             background: white; padding: 25px; border-radius: 8px;
-            width: 90%; max-width: 400px; box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            width: 90%; max-width: 450px; box-shadow: 0 5px 15px rgba(0,0,0,0.3);
         }
         .modal-content h2 { margin-bottom: 15px; color: #2c3e50; font-size: 18px; text-align: center; }
         .modal-content select, .modal-content input {
@@ -384,10 +399,10 @@
         .modal-content button:hover { background: #1a252f; }
         
         /* Table PO */
-        .po-table-container { max-height: 250px; overflow-y: auto; margin-top: 15px; }
+        .po-table-container { max-height: 300px; overflow-y: auto; margin-top: 15px; }
         .po-table { width: 100%; border-collapse: collapse; font-size: 12px; }
-        .po-table th, .po-table td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-        .po-table th { background-color: #f2f2f2; position: sticky; top: 0; }
+        .po-table th, .po-table td { border: 1px solid #ddd; padding: 8px; text-align: left; vertical-align: top;}
+        .po-table th { background-color: #f2f2f2; position: sticky; top: 0; z-index: 5;}
         .po-table tr:hover { background-color: #f9f9f9; }
         .btn-pick-po { background: #27ae60; color: white; border: none; padding: 4px 8px; border-radius: 3px; cursor: pointer; font-size: 10px; }
 
@@ -475,14 +490,6 @@
         </div>
     </div>
 
-    <!-- CUSTOM ALERT MODAL -->
-    <div id="customAlertModal" class="modal-overlay" style="display:none; z-index: 100001;">
-        <div class="modal-content" style="text-align: center; max-width: 300px;">
-            <p id="customAlertText" style="margin-bottom: 20px; font-size: 14px; color: #333; line-height: 1.5;"></p>
-            <button onclick="document.getElementById('customAlertModal').style.display='none'">OK</button>
-        </div>
-    </div>
-
     <!-- 1. LOGIN MODAL -->
     <div id="loginModal" class="modal-overlay">
         <div class="modal-content">
@@ -490,7 +497,7 @@
             <select id="loginRole">
                 <option value="manager">Manager</option>
                 <option value="supervisor">Supervisor</option>
-                <option value="staff">Staf</option>
+                <option value="technician">Technician</option>
             </select>
             <input type="password" id="loginPassword" placeholder="Kata Laluan" onkeypress="if(event.key === 'Enter') checkLogin()">
             <p id="loginError" style="color:red; font-size:12px; display:none; margin-top:-10px; margin-bottom:10px;">Kata laluan salah!</p>
@@ -498,18 +505,18 @@
         </div>
     </div>
 
-    <!-- 2. PO SEARCH MODAL (Untuk Staf) -->
+    <!-- 2. PO SEARCH MODAL -->
     <div id="poSearchModal" class="modal-overlay" style="display:none;">
-        <div class="modal-content" style="max-width: 500px;">
-            <h2>Hasil Carian PO</h2>
-            <p style="font-size:12px; color:#555;">Sila pilih rekod dari senarai di bawah:</p>
+        <div class="modal-content">
+            <h2>Hasil Carian Draf & Pending</h2>
+            <p style="font-size:12px; color:#555; margin-bottom:10px;">Pilih rekod dari senarai di bawah, atau salin link kelulusan jika status adalah 'Pending'.</p>
             <div class="po-table-container">
                 <table class="po-table">
                     <thead>
                         <tr>
                             <th>Tarikh</th>
-                            <th>No. PO</th>
-                            <th>Klien</th>
+                            <th>No. PO / Klien</th>
+                            <th>Status</th>
                             <th>Tindakan</th>
                         </tr>
                     </thead>
@@ -530,30 +537,26 @@
             <div id="toggleIcon" class="toggle-icon">Sembunyi ▲</div>
         </div>
 
-        <!-- NEW: WRAPPER FORM CONTENT -->
-        <div id="formContentWrapper" style="display:none;"> <!-- Hidden initially until login -->
+        <div id="formContentWrapper" style="display:none;">
             
-            <!-- User Info Bar -->
             <div class="user-status-bar">
                 <span>Akses: <span id="roleDisplay" class="role-badge">TBD</span></span>
                 <button class="btn-logout" onclick="logout()">Log Keluar</button>
             </div>
 
-            <!-- NEW: BUTANG DASHBOARD (Hanya untuk Manager) -->
             <a href="/dashboard" id="btnDashboard" class="btn-dashboard" style="display: none;">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9"></rect><rect x="14" y="3" width="7" height="5"></rect><rect x="14" y="12" width="7" height="9"></rect><rect x="3" y="16" width="7" height="5"></rect></svg>
                 Pergi ke Dashboard
             </a>
 
-            <!-- Search Area (Kini boleh diguna oleh Manager & Staff) -->
             <div id="poSearchArea" class="search-po-box">
-                <label style="font-size: 11px; font-weight: bold; color: #2c3e50; display:block; margin-bottom:5px;">Cari & Tarik Data Draf (Nombor PO)</label>
-                <input type="text" id="searchPoInput" placeholder="Masukkan No PO (Cth: PO-1001)">
-                <button id="btnSearchPo" onclick="searchPO()">Cari Maklumat Draf</button>
+                <label style="font-size: 11px; font-weight: bold; color: #2c3e50; display:block; margin-bottom:5px;">Cari Maklumat Draf & Pending</label>
+                <input type="text" id="searchPoInput" placeholder="Masukkan No PO (Biar kosong untuk papar semua)">
+                <button id="btnSearchPo" onclick="searchPO()">Cari Maklumat</button>
                 <div id="searchMsg" style="font-size: 10px; color: #e74c3c; margin-top: 5px; font-weight: bold;"></div>
             </div>
 
-            <!-- Section 1 Inputs (Manager Only) -->
+            <!-- Section 1 Inputs -->
             <div id="managerFieldsGroup">
                 <div class="input-group">
                     <label>Date</label>
@@ -590,40 +593,49 @@
                 </div>
             </div>
 
-            <!-- Time In Out (All Roles) -->
+            <!-- Time In Out -->
             <div class="input-group">
-                <label>Time In / Out</label>
+                <label>Time In (Tarikh & Masa)</label>
+                <input type="datetime-local" id="f_in" oninput="updateTimeIO('in')">
+            </div>
+            <div class="input-group">
+                <label>Time Out (Tarikh & Masa)</label>
+                <input type="datetime-local" id="f_out" oninput="updateTimeIO('out')">
+            </div>
+
+            <hr style="margin: 15px 0;">
+
+            <!-- Section 2 & 3 Inputs: DYNAMIC JOB DESCRIPTION -->
+            <div class="input-group">
+                <label>Job Description / Job Details & Remark</label>
+                <div id="jobDescEditorContainer">
+                    <!-- Dynamic rows will be injected here -->
+                </div>
+                <button type="button" class="print-btn" style="background-color: #3498db; padding: 6px; margin-top: 5px; width: 100%; font-size: 11px;" onclick="addJobDescRow()">+ Tambah Baris Description</button>
+            </div>
+            
+            <div class="input-group">
+                <label>Unresolved Issue & Action</label>
+                <textarea id="f_issue" rows="4" oninput="update('v_issue', this.value)"></textarea>
+            </div>
+            
+            <!-- MANPOWER / PAX -->
+            <div class="input-group">
+                <label>Manpower (Berapa pax & Nama)</label>
                 <div style="display:flex; gap:5px;">
-                    <input type="time" id="f_in" oninput="update('v_in', this.value)">
-                    <input type="time" id="f_out" oninput="update('v_out', this.value)">
+                    <input type="number" id="f_pax_count" placeholder="Pax" style="width: 25%;" oninput="updatePax()">
+                    <input type="text" id="f_pax_names" placeholder="Cth: Amir, Amri, Abdul" style="width: 75%;" oninput="updatePax()">
                 </div>
             </div>
 
             <hr style="margin: 15px 0;">
 
-            <!-- Section 2 & 3 Inputs (All Roles) -->
-            <div class="input-group">
-                <label>Job Description / Details</label>
-                <textarea id="f_job_desc" rows="6" oninput="update('v_job_desc', this.value)"></textarea>
-            </div>
-            <div class="input-group">
-                <label>Unresolved Issue & Action</label>
-                <textarea id="f_issue" rows="4" oninput="update('v_issue', this.value)"></textarea>
-            </div>
-            <div class="input-group">
-                <label>Remarks</label>
-                <textarea id="f_remark" rows="2" oninput="update('v_remark', this.value)"></textarea>
-            </div>
-
-            <hr style="margin: 15px 0;">
-
-            <!-- IMAGE UPLOAD (All Roles) -->
+            <!-- IMAGE UPLOAD -->
             <div class="input-group" style="background: #e8f6f3; padding: 10px; border-radius: 4px;">
-                <label style="color:#16a085;">📸 Upload Gambar (Max 6)</label>
+                <label style="color:#16a085;">📸 Upload Gambar (Tiada Had)</label>
                 <input type="file" id="imageInput" accept="image/*" multiple onchange="handleImageUpload(this)">
-                <p style="font-size:10px; color:#7f8c8d; margin-top:5px;">Pilih sehingga 6 gambar. Tambah nota pada gambar yang dimuat naik di bawah.</p>
+                <p style="font-size:10px; color:#7f8c8d; margin-top:5px;">Pilih gambar. Muka surat tambahan akan dijana secara automatik untuk setiap 6 gambar dimuat naik.</p>
                 
-                <!-- Ruangan Editor Senarai Gambar dan Nota -->
                 <div id="editorImageList" style="margin-top: 10px; display: flex; flex-direction: column; gap: 8px;"></div>
                 
                 <button type="button" class="btn-clear-sig" onclick="clearAllImages()" style="margin-top: 10px; background: #e74c3c;">Padam Semua Gambar</button>
@@ -632,7 +644,7 @@
 
             <hr style="margin: 15px 0;">
 
-            <!-- Footer Inputs (All Roles) -->
+            <!-- Footer Inputs -->
             <div class="input-group" style="background: #fdf2e9; padding: 8px; border-radius: 4px; border: 1px dashed #f39c12; margin-bottom: 10px;">
                 <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; color: #d35400; font-size: 11px; margin: 0;">
                     <input type="checkbox" id="copyPicDetails" onchange="handleCopyPic()" style="width: 14px; height: 14px; margin: 0;">
@@ -641,30 +653,30 @@
             </div>
 
             <div class="input-group">
-                <label>PIC Client Name (Untuk Sign Bawah)</label>
+                <label>PIC Client Name (Rujukan Sistem Sahaja)</label>
                 <input type="text" id="f_sign_client_name" oninput="update('v_sign_client_name', this.value)">
             </div>
             <div class="input-group">
-                <label>PIC Client Position (Untuk Sign Bawah)</label>
+                <label>PIC Client Position (Rujukan Sistem Sahaja)</label>
                 <input type="text" id="f_sign_client_pos" oninput="update('v_sign_client_pos', this.value)">
             </div>
             <div class="input-group">
-                <label>PIC Client Phone (Untuk Sign Bawah)</label>
+                <label>PIC Client Phone (Rujukan Sistem Sahaja)</label>
                 <input type="text" id="f_sign_client_phone" placeholder="Cth: 0123456789" oninput="update('v_sign_client_phone', this.value)">
             </div>
 
             <div class="input-group">
-                <label>PIC Staff Name</label>
+                <label>PIC Technician / Staff Name</label>
                 <input type="text" id="f_staff_name" oninput="update('v_staff_name', this.value)">
             </div>
             <div class="input-group">
-                <label>PIC Staff Position</label>
+                <label>PIC Technician / Staff Position</label>
                 <input type="text" id="f_staff_pos" oninput="update('v_staff_pos', this.value)">
             </div>
 
-            <!-- CANVAS TANDATANGAN STAF -->
+            <!-- CANVAS TANDATANGAN TECHNICIAN -->
             <div class="input-group" style="background: #ecf0f1; padding: 10px; border-radius: 4px; border: 1px solid #bdc3c7;">
-                <label style="color:#2c3e50;">✍️ Tandatangan Staf Di Sini</label>
+                <label style="color:#2c3e50;">✍️ Tandatangan Technician Di Sini</label>
                 <div style="background: white; border: 1px solid #ccc; border-radius: 4px; overflow:hidden;">
                     <canvas id="staffCanvas" style="width: 100%; height: 120px; cursor: crosshair; touch-action: none;"></canvas>
                 </div>
@@ -672,19 +684,16 @@
                 <div style="clear:both;"></div>
             </div>
 
-            <!-- Butang Simpan Draf (Manager Only) -->
             <button id="btnSaveDraft" class="print-btn btn-save-draft" onclick="saveDraftToSystem()">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
-                Simpan Data (Untuk Disambung Staf)
+                Simpan Data (Untuk Disambung Technician)
             </button>
 
-            <!-- Butang Submit (Semua) -->
             <button id="submitSystemBtn" class="print-btn" style="background-color: #27ae60;" onclick="submitToSystem()">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
                 Hantar & Dapatkan Link Klien
             </button>
 
-            <!-- Download PDF Button (Semua) -->
             <button id="downloadBtn" class="print-btn" style="background-color: #e74c3c;" onclick="generatePDF()">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
                 Download as PDF
@@ -692,8 +701,7 @@
             
             <div id="systemMessage" style="font-size:12px; margin-top:10px; text-align:center; font-weight:bold; color:#2c3e50; padding: 5px; border-radius: 4px;"></div>
         
-        </div> <!-- End Wrapper Form Content -->
-
+        </div>
     </div>
 
     <!-- RIGHT PANEL: PREVIEW -->
@@ -743,9 +751,18 @@
                     </div>
                 </div>
 
-                <div class="section-box">
-                    <div class="section-title">Job Description / Job Details</div>
-                    <div class="content-box" id="v_job_desc"></div>
+                <div class="section-box" style="overflow: hidden; margin-bottom: 10px;">
+                    <table class="job-table">
+                        <thead>
+                            <tr>
+                                <th class="desc-col" style="text-align: left; padding: 4px 8px;">Job Description / Job Details</th>
+                                <th class="remark-col" style="padding: 4px 8px;">Remark</th>
+                            </tr>
+                        </thead>
+                        <tbody id="v_job_desc">
+                            <!-- Dynamic job description table will render here -->
+                        </tbody>
+                    </table>
                 </div>
 
                 <div class="section-box">
@@ -754,77 +771,17 @@
                 </div>
 
                 <div class="section-box">
-                    <div class="section-title">Remark / Comment</div>
+                    <div class="section-title">Manpower / Pax</div>
                     <div class="content-box small" id="v_remark"></div>
                 </div>
 
                 <div class="page-footer">
                     <div>© 2026 All Right Reserved by <span class="Voltake-btn">Voltake</span></div>
-                    <div>Page 1 of 3</div>
+                    <div id="page1-footer">Page 1 of 3</div>
                 </div>
             </div>
 
-            <!-- PAGE 2: IMAGES -->
-            <div class="a4-page">
-                <div class="report-header">
-                    <div class="logo-container">
-                        <img src="https://i.postimg.cc/nL1yRcWv/energy-services.png" alt="Voltake Logo" crossorigin="anonymous">
-                    </div>
-                    <div class="company-info">
-                        <div class="company-name">Voltake Energy</div>
-                        <div class="company-reg">201801008831 (1270845-X)</div>
-                        <div class="contact-row">
-                            <svg class="contact-icon" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
-                            <span>+604-5823617</span>
-                        </div>
-                        <div class="contact-row">
-                            <svg class="contact-icon" viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
-                            <span>admin@voltake.com</span>
-                        </div>
-                        <div class="contact-row">
-                            <svg class="contact-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
-                            <span>www.voltake.com</span>
-                        </div>
-                    </div>
-                </div>
-
-                <h1 class="report-title">Site Photos / Lampiran Gambar</h1>
-
-                <!-- Ruangan Grid Untuk Gambar -->
-                <div class="photo-grid" id="photo-preview-grid">
-                    <div class="photo-slot">
-                        <div class="photo-img-wrapper"><div class="photo-placeholder">No Image</div></div>
-                        <div class="photo-desc-preview"></div>
-                    </div>
-                    <div class="photo-slot">
-                        <div class="photo-img-wrapper"><div class="photo-placeholder">No Image</div></div>
-                        <div class="photo-desc-preview"></div>
-                    </div>
-                    <div class="photo-slot">
-                        <div class="photo-img-wrapper"><div class="photo-placeholder">No Image</div></div>
-                        <div class="photo-desc-preview"></div>
-                    </div>
-                    <div class="photo-slot">
-                        <div class="photo-img-wrapper"><div class="photo-placeholder">No Image</div></div>
-                        <div class="photo-desc-preview"></div>
-                    </div>
-                    <div class="photo-slot">
-                        <div class="photo-img-wrapper"><div class="photo-placeholder">No Image</div></div>
-                        <div class="photo-desc-preview"></div>
-                    </div>
-                    <div class="photo-slot">
-                        <div class="photo-img-wrapper"><div class="photo-placeholder">No Image</div></div>
-                        <div class="photo-desc-preview"></div>
-                    </div>
-                </div>
-
-                <div class="page-footer">
-                    <div>© 2026 All Right Reserved by <span class="Voltake-btn">Voltake</span></div>
-                    <div>Page 2 of 3</div>
-                </div>
-            </div>
-
-            <!-- PAGE 3: SIGNATURES -->
+            <!-- PAGE 2: SIGNATURES -->
             <div class="a4-page">
                 <div class="report-header">
                     <div class="logo-container">
@@ -863,7 +820,7 @@
 
                         <div class="sig-col">
                             <div class="sig-title">PIC STAFF</div>
-                            <div class="sig-box" id="preview-staff-sig">(Tandatangan Staf)</div>
+                            <div class="sig-box" id="preview-staff-sig">(Tandatangan Technician)</div>
                             <div class="sig-row"><div class="sig-label">Name:</div><div class="field-value" id="v_staff_name" style="border-bottom:1px solid #ccc;"></div></div>
                             <div class="sig-row"><div class="sig-label">Position:</div><div class="field-value" id="v_staff_pos" style="border-bottom:1px solid #ccc;"></div></div>
                             <div class="sig-row"><div class="sig-label">Date:</div><div class="field-value" id="v_sign_date2" style="border-bottom:1px solid #ccc;"></div></div>
@@ -873,25 +830,46 @@
 
                 <div class="page-footer">
                     <div>© 2026 All Right Reserved by <span class="Voltake-btn">Voltake</span></div>
-                    <div>Page 3 of 3</div>
+                    <div id="page2-footer">Page 2 of 3</div>
                 </div>
             </div>
+
+            <!-- CONTAINER DINAMIK UNTUK MUKA SURAT GAMBAR -->
+            <div id="dynamic-image-pages-container">
+                <!-- Javascript akan masukkan page gambar di sini -->
+            </div>
             
-        </div> <!-- End Export Container -->
+        </div>
     </div>
 
     <!-- JAVASCRIPT -->
     <script>
-        // MASUKKAN URL GOOGLE APPS SCRIPT (WEB APP) ANDA DI SINI
-        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwz2tQ4S-JDvATaWnu2tldg3GWpkoiCWgcVZNSwH-OgqY1v1gmj09yQ6hCWgkAcO9tL/exec"; 
+        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycby2XnVx4gVoqmPZdX-HaIawOmxKLXDXN7e1zaF7bcudJQ7bNWmp-2JSgS4f-JYuOCdE/exec"; 
 
-        // ==========================================
-        // CUSTOM ALERT FUNCTION (Replacing native alert)
-        // ==========================================
-        function customAlert(message) {
-            document.getElementById('customAlertText').innerText = message;
-            document.getElementById('customAlertModal').style.display = 'flex';
-        }
+        // Header Statik untuk dipinjam masuk ke dalam mukasurat gambar dinamik
+        const templateHeaderHTML = `
+            <div class="report-header">
+                <div class="logo-container">
+                    <img src="https://i.postimg.cc/nL1yRcWv/energy-services.png" alt="Voltake Logo" crossorigin="anonymous">
+                </div>
+                <div class="company-info">
+                    <div class="company-name">Voltake Energy</div>
+                    <div class="company-reg">201801008831 (1270845-X)</div>
+                    <div class="contact-row">
+                        <svg class="contact-icon" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+                        <span>+604-5823617</span>
+                    </div>
+                    <div class="contact-row">
+                        <svg class="contact-icon" viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+                        <span>admin@voltake.com</span>
+                    </div>
+                    <div class="contact-row">
+                        <svg class="contact-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
+                        <span>www.voltake.com</span>
+                    </div>
+                </div>
+            </div>
+        `;
 
         // ==========================================
         // TECH LOADER FUNCTIONS
@@ -904,9 +882,10 @@
             document.getElementById('techLoader').style.display = "none";
         }
 
-        // Initial Splash Screen (Sistem Booting)
         window.addEventListener('load', () => {
             showTechLoader("SYSTEM BOOTING...");
+            renderJobDescEditor(); 
+            renderImages(); // Panggil initial render supaya minimum 1 page gambar kosong terhasil
             setTimeout(() => { hideTechLoader(); }, 1500);
         });
 
@@ -914,7 +893,165 @@
         // 1. SISTEM LOG MASUK & AKSES PERANAN
         // ==========================================
         let currentRole = null; 
-        let currentStaffToken = ""; // Simpan token draf sekiranya staf sedang edit
+        let currentStaffToken = ""; 
+
+        // ==========================================
+        // DYNAMIC JOB DESCRIPTION FUNCTIONS
+        // ==========================================
+        let jobDescriptions = [{ desc: '', remark: '' }];
+
+        function renderJobDescEditor() {
+            const container = document.getElementById('jobDescEditorContainer');
+            container.innerHTML = '';
+            jobDescriptions.forEach((job, index) => {
+                container.innerHTML += `
+                    <div style="display: flex; gap: 5px; margin-bottom: 2px; align-items: flex-start; border-bottom: 1px dashed #ccc; padding-bottom: 2px;">
+                        <textarea placeholder="Description (Cth: GIS Maintenance...)" oninput="updateJobDesc(${index}, 'desc', this.value)" style="flex: 1; min-height: 40px; font-size: 11px; padding: 4px; border: 1px solid #bdc3c7; border-radius: 3px;">${job.desc}</textarea>
+                        <input type="text" placeholder="Remark" oninput="updateJobDesc(${index}, 'remark', this.value)" value="${job.remark}" style="width: 70px; font-size: 11px; padding: 4px; border: 1px solid #bdc3c7; border-radius: 3px;">
+                        <button type="button" onclick="removeJobDescRow(${index})" style="background: #e74c3c; color: white; border: none; padding: 4px 6px; cursor: pointer; border-radius: 3px; font-weight: bold; font-size: 10px;" title="Padam Baris">X</button>
+                    </div>
+                `;
+            });
+            updateJobDescPreview();
+        }
+
+        function addJobDescRow() {
+            jobDescriptions.push({ desc: '', remark: '' });
+            renderJobDescEditor();
+        }
+
+        function removeJobDescRow(index) {
+            if (jobDescriptions.length > 1) {
+                jobDescriptions.splice(index, 1);
+            } else {
+                jobDescriptions[0] = { desc: '', remark: '' }; // Kosongkan kalau tinggal 1
+            }
+            renderJobDescEditor();
+        }
+
+        function updateJobDesc(index, field, value) {
+            jobDescriptions[index][field] = value;
+            updateJobDescPreview();
+        }
+
+        function updateJobDescPreview() {
+            const previewContainer = document.getElementById('v_job_desc');
+            let html = '';
+            jobDescriptions.forEach(job => {
+                if (job.desc || job.remark) {
+                    html += `<tr>
+                        <td class="desc-col">${job.desc}</td>
+                        <td class="remark-col">${job.remark}</td>
+                    </tr>`;
+                }
+            });
+            previewContainer.innerHTML = html;
+        }
+
+        function getCombinedJobDescString() {
+            return jobDescriptions.map(job => {
+                if (!job.desc && !job.remark) return '';
+                let text = job.desc;
+                if (job.remark) {
+                    if (text.includes('\n')) {
+                        let lines = text.split('\n');
+                        lines[lines.length - 1] += `        ${job.remark}`;
+                        text = lines.join('\n');
+                    } else {
+                        text += `        ${job.remark}`; 
+                    }
+                }
+                return text;
+            }).filter(Boolean).join('\n\n');
+        }
+
+        function parseJobDescString(str) {
+            if (!str) return [{desc: '', remark: ''}];
+            let jobs = [];
+            let blocks = str.split(/\n\n+/);
+            blocks.forEach(block => {
+                let parts = block.split(/ {4,}/);
+                if (parts.length > 1) {
+                    let remark = parts.pop().trim();
+                    let desc = parts.join('    ').trim();
+                    jobs.push({ desc: desc, remark: remark });
+                } else {
+                    jobs.push({ desc: block.trim(), remark: '' });
+                }
+            });
+            return jobs.length > 0 ? jobs : [{desc: '', remark: ''}];
+        }
+
+        // ==========================================
+        // FUNGSI TARIKH MASA DATETIME CUSTOM
+        // ==========================================
+        function formatDateTimeCustom(isoString) {
+            if (!isoString) return '';
+            const d = new Date(isoString);
+            if (isNaN(d.getTime())) return isoString;
+            const day = d.getDate();
+            const month = d.getMonth() + 1;
+            const year = d.getFullYear();
+            let hours = d.getHours();
+            const mins = ("0" + d.getMinutes()).slice(-2);
+            const ampm = hours >= 12 ? 'PM' : 'AM';
+            hours = hours % 12;
+            hours = hours ? hours : 12;
+            const hoursStr = ("0" + hours).slice(-2);
+            return `${day}/${month}/${year} ; ${hoursStr}:${mins} ${ampm}`;
+        }
+
+        function parseCustomToDateTimeLocal(str) {
+            if (!str) return '';
+            try {
+                const parts = str.split(';');
+                if (parts.length !== 2) return str; 
+                const dateParts = parts[0].trim().split('/');
+                const timeParts = parts[1].trim().split(' ');
+                if (dateParts.length !== 3 || timeParts.length !== 2) return '';
+                
+                const day = ("0" + dateParts[0]).slice(-2);
+                const month = ("0" + dateParts[1]).slice(-2);
+                const year = dateParts[2];
+                
+                const hm = timeParts[0].split(':');
+                let h = parseInt(hm[0], 10);
+                const m = hm[1];
+                const ampm = timeParts[1].toUpperCase();
+                
+                if (ampm === 'PM' && h < 12) h += 12;
+                if (ampm === 'AM' && h === 12) h = 0;
+                const hStr = ("0" + h).slice(-2);
+                
+                return `${year}-${month}-${day}T${hStr}:${m}`;
+            } catch (e) {
+                return '';
+            }
+        }
+
+        function updateTimeIO(type) {
+            const inputId = type === 'in' ? 'f_in' : 'f_out';
+            const targetId = type === 'in' ? 'v_in' : 'v_out';
+            const val = document.getElementById(inputId).value;
+            const formatted = formatDateTimeCustom(val);
+            document.getElementById(targetId).innerText = formatted;
+        }
+
+        // ==========================================
+        // FUNGSI MANPOWER / PAX
+        // ==========================================
+        function updatePax() {
+            const count = document.getElementById('f_pax_count').value;
+            const names = document.getElementById('f_pax_names').value;
+            let result = '';
+            
+            if(count) result += `${count} pax`;
+            if(count && names) result += ' - ';
+            if(!count && names) result += names; 
+            if(count && names) result += names;  
+            
+            document.getElementById('v_remark').innerText = result;
+        }
 
         // ==========================================
         // FUNGSI AUTO-COPY PIC CLIENT
@@ -944,12 +1081,13 @@
             const pass = document.getElementById('loginPassword').value;
             const errorMsg = document.getElementById('loginError');
             
+            // Logik Pengesahan Password Baharu
             if (role === 'manager' && pass === 'manager123#') {
                 currentRole = 'manager';
             } else if (role === 'supervisor' && pass === 'sv123#') {
                 currentRole = 'supervisor';
-            } else if (role === 'staff' && pass === 'staf123#') {
-                currentRole = 'staff';
+            } else if (role === 'technician' && pass === 'tech123#') {
+                currentRole = 'technician';
             } else {
                 errorMsg.style.display = 'block';
                 return;
@@ -981,32 +1119,42 @@
             const btnSaveDraft = document.getElementById('btnSaveDraft');
             const poSearchArea = document.getElementById('poSearchArea');
             const btnDashboard = document.getElementById('btnDashboard');
+            const roleDisplay = document.getElementById('roleDisplay');
 
+            // Manager dan Supervisor ada akses penuh
             if (currentRole === 'manager' || currentRole === 'supervisor') {
                 managerInputs.forEach(input => input.disabled = false);
                 btnSaveDraft.style.display = 'flex';
-                poSearchArea.style.display = 'block'; // Paparkan pada Manager & Supervisor
-                btnDashboard.style.display = 'flex';  // Paparkan butang Dashboard
-                document.getElementById('roleDisplay').style.background = currentRole === 'manager' ? '#f1c40f' : '#e67e22';
-            } else if (currentRole === 'staff') {
+                poSearchArea.style.display = 'block';
+                btnDashboard.style.display = 'flex'; // Akses ke Dashboard
+                
+                if (currentRole === 'manager') {
+                    roleDisplay.style.background = '#f1c40f'; // Warna Emas
+                    roleDisplay.innerText = 'Manager';
+                } else {
+                    roleDisplay.style.background = '#3498db'; // Warna Biru
+                    roleDisplay.innerText = 'Supervisor';
+                }
+                
+            } else if (currentRole === 'technician') {
+                // Technician ada akses terhad
                 managerInputs.forEach(input => input.disabled = true);
-                btnSaveDraft.style.display = 'none';
-                poSearchArea.style.display = 'block'; // Paparkan pada Staf
-                btnDashboard.style.display = 'none';  // Sembunyikan butang Dashboard
-                document.getElementById('roleDisplay').style.background = '#2ecc71';
+                btnSaveDraft.style.display = 'flex'; 
+                poSearchArea.style.display = 'block';
+                btnDashboard.style.display = 'none'; // Tiada akses ke Dashboard
+                roleDisplay.style.background = '#2ecc71'; // Warna Hijau
+                roleDisplay.innerText = 'Technician';
             }
         }
 
         // ==========================================
-        // FUNGSI CARI PO & LOAD DATA (MANAGER & STAF)
+        // FUNGSI CARI PO & LOAD DATA (KEMASKINI)
         // ==========================================
         function searchPO() {
             const poInput = document.getElementById('searchPoInput').value.trim();
             const msgBox = document.getElementById('searchMsg');
-            if (!poInput) {
-                msgBox.innerText = "Sila masukkan nombor PO.";
-                return;
-            }
+            
+            // Sekatan dihapuskan. Membenarkan carian kosong untuk tarik semua draf dan pending.
 
             msgBox.innerText = "Sedang mencari data... Sila tunggu.";
             const btn = document.getElementById('btnSearchPo');
@@ -1026,7 +1174,7 @@
                 if (data.status === 'success') {
                     displayPoResults(data.data);
                 } else {
-                    msgBox.innerText = "Tiada rekod draf dijumpai untuk nombor PO ini.";
+                    msgBox.innerText = "Tiada rekod draf atau pending dijumpai.";
                 }
             })
             .catch(err => {
@@ -1036,6 +1184,17 @@
             });
         }
 
+        // Fungsi Salin Link Kelulusan
+        function copyApprovalLink(link) {
+            const el = document.createElement('textarea');
+            el.value = link;
+            document.body.appendChild(el);
+            el.select();
+            document.execCommand('copy');
+            document.body.removeChild(el);
+            alert("Link kelulusan berjaya disalin!\nAnda kini boleh hantar link ini kepada klien.");
+        }
+
         function displayPoResults(results) {
             const tbody = document.getElementById('poTableBody');
             tbody.innerHTML = '';
@@ -1043,11 +1202,29 @@
             results.forEach((row) => {
                 const tr = document.createElement('tr');
                 const stringifiedData = JSON.stringify(row).replace(/'/g, "&#39;");
+                
+                let statusBadge = row.status === 'Pending'
+                    ? '<span style="background:#f39c12; color:#fff; padding:2px 5px; border-radius:3px; font-size:9px;">Pending</span>'
+                    : '<span style="background:#7f8c8d; color:#fff; padding:2px 5px; border-radius:3px; font-size:9px;">Draft</span>';
+
+                let actionBtns = `<button class="btn-pick-po" style="margin-bottom:2px;" onclick='loadDraftData(${stringifiedData})'>Pilih</button>`;
+
+                // Tambah butang Salin Link jika status adalah Pending
+                if (row.status === 'Pending' && row.approvalToken) {
+                    // Script URL perlu diakhiri dengan token untuk direct access
+                    // Disebabkan kita tahu format URL, kita hanya tambah ?token=
+                    const approvalLink = `${WEB_APP_URL}?token=${row.approvalToken}`;
+                    actionBtns += `<button style="background:#3498db; color:white; border:none; padding:4px 8px; border-radius:3px; cursor:pointer; font-size:10px; display:block; margin-top:4px; width:max-content;" onclick="copyApprovalLink('${approvalLink}')">Salin Link</button>`;
+                }
+
                 tr.innerHTML = `
-                    <td>${row.date || ''}</td>
-                    <td>${row.po || ''}</td>
-                    <td>${row.client || ''}</td>
-                    <td><button class="btn-pick-po" onclick='loadDraftData(${stringifiedData})'>Pilih</button></td>
+                    <td>${row.date || '-'}</td>
+                    <td>
+                        <strong>${row.po || 'Tiada PO'}</strong><br>
+                        <span style="font-size:10px; color:#555;">${row.client || '-'}</span>
+                    </td>
+                    <td>${statusBadge}</td>
+                    <td>${actionBtns}</td>
                 `;
                 tbody.appendChild(tr);
             });
@@ -1072,22 +1249,75 @@
             setFieldValue('f_sign_client_pos', dataObj.signClientPos);
             setFieldValue('f_sign_client_phone', dataObj.signClientPhone);
 
+            // Time In / Time Out
+            document.getElementById('f_in').value = parseCustomToDateTimeLocal(dataObj.timeIn) || dataObj.timeIn || '';
+            document.getElementById('f_out').value = parseCustomToDateTimeLocal(dataObj.timeOut) || dataObj.timeOut || '';
+            updateTimeIO('in');
+            updateTimeIO('out');
+
+            setFieldValue('f_issue', dataObj.issue);
+            setFieldValue('f_staff_name', dataObj.staffName);
+            setFieldValue('f_staff_pos', dataObj.staffPos);
+
+            if (dataObj.jobDesc) {
+                jobDescriptions = parseJobDescString(dataObj.jobDesc);
+            } else {
+                jobDescriptions = [{desc: '', remark: ''}];
+            }
+            renderJobDescEditor();
+
+            const remarksStr = dataObj.remarks || '';
+            let paxCount = '';
+            let paxNames = '';
+            if (remarksStr.includes(' pax - ')) {
+                const parts = remarksStr.split(' pax - ');
+                paxCount = parts[0];
+                paxNames = parts[1];
+            } else if (remarksStr.includes(' pax')) {
+                paxCount = remarksStr.replace(' pax', '');
+            } else {
+                paxNames = remarksStr;
+            }
+            document.getElementById('f_pax_count').value = paxCount;
+            document.getElementById('f_pax_names').value = paxNames;
+            updatePax();
+
+            // PENTING: Baca data gambar dari Apps Script yang telah disimpan
+            uploadedImages = [];
+            if (dataObj.draftImages && dataObj.draftImages.length > 0) {
+                dataObj.draftImages.forEach(img => {
+                    uploadedImages.push({
+                        id: img.id,
+                        src: "https://lh3.googleusercontent.com/d/" + img.id,
+                        desc: img.desc
+                    });
+                });
+            }
+            renderEditorImages();
+            renderImages(); // Kemaskini pages dinamik
+
             currentStaffToken = dataObj.staffToken; 
 
             closePoModal();
-            customAlert("Berjaya tarik data! Sila teruskan kerja anda.");
+            alert("Berjaya tarik data! Sila teruskan kerja anda.");
         }
 
         // ==========================================
-        // FUNGSI SIMPAN DRAF (MANAGER)
+        // FUNGSI SIMPAN DRAF
         // ==========================================
         function saveDraftToSystem() {
             const btn = document.getElementById('btnSaveDraft');
             const msgBox = document.getElementById('systemMessage');
             
+            const payloadDraftImages = uploadedImages.map(img => ({
+                id: img.id || '', // Jika kosong, maknanya gambar baru nak di-upload
+                base64: img.src.startsWith('data:image') ? img.src : '', // Hantar jika base64
+                desc: img.desc
+            }));
+
             const payload = {
                 action: "save_draft",
-                staffToken: currentStaffToken, // Hantar token jika Manager edit draf yg dah ditarik
+                staffToken: currentStaffToken,
                 date: document.getElementById('f_date').value,
                 po: document.getElementById('f_po').value,
                 qt: document.getElementById('f_qt').value,
@@ -1099,18 +1329,28 @@
                 picPhone: document.getElementById('f_pic_phone').value,
                 signClientName: document.getElementById('f_sign_client_name').value,
                 signClientPos: document.getElementById('f_sign_client_pos').value,
-                signClientPhone: document.getElementById('f_sign_client_phone').value
+                signClientPhone: document.getElementById('f_sign_client_phone').value,
+                
+                timeIn: document.getElementById('v_in').innerText || '', 
+                timeOut: document.getElementById('v_out').innerText || '',
+                jobDesc: getCombinedJobDescString(), 
+                issue: document.getElementById('f_issue').value || '',
+                remarks: document.getElementById('v_remark').innerText || '',
+                staffName: document.getElementById('f_staff_name').value || '',
+                staffPosition: document.getElementById('f_staff_pos').value || '',
+                
+                draftImages: payloadDraftImages
             };
 
             if (!payload.po) {
-                customAlert("Sila masukkan PO Number untuk rujukan carian staf nanti.");
+                alert("Sila masukkan PO Number untuk rujukan carian technician nanti.");
                 return;
             }
 
             btn.disabled = true;
             btn.innerHTML = 'Sedang Menyimpan...';
             msgBox.style.background = "#f1c40f";
-            msgBox.innerHTML = "Menghantar draf ke pangkalan data...";
+            msgBox.innerHTML = payloadDraftImages.length > 0 ? "Menghantar draf berserta gambar ke pangkalan data..." : "Menghantar draf ke pangkalan data...";
 
             showTechLoader("SAVING DATA TO CLOUD...");
 
@@ -1123,26 +1363,27 @@
                 hideTechLoader();
                 if(data.status === 'success') {
                     msgBox.style.background = "#d4edda";
-                    msgBox.innerHTML = `<span style="color:green;">Draf berjaya disimpan / dikemaskini! Maklumkan kepada Staf nombor PO: <b>${payload.po}</b></span>`;
-                    if(data.staffToken) currentStaffToken = data.staffToken; // Simpan token baru
+                    msgBox.innerHTML = `<span style="color:green;">Draf berjaya disimpan / dikemaskini! Maklumkan kepada Technician nombor PO: <b>${payload.po}</b></span>`;
+                    if(data.staffToken) currentStaffToken = data.staffToken;
+                    
                 } else {
                     msgBox.style.background = "#f8d7da";
                     msgBox.innerHTML = `<span style="color:red;">Ralat: ${data.message}</span>`;
                 }
                 btn.disabled = false;
-                btn.innerHTML = 'Simpan Data (Untuk Disambung Staf)';
+                btn.innerHTML = 'Simpan Data (Untuk Disambung Technician)';
             })
             .catch(err => {
                 hideTechLoader();
                 msgBox.style.background = "#f8d7da";
                 msgBox.innerHTML = `<span style="color:red;">Ralat Network. Sila pastikan URL Web App tepat.</span>`;
                 btn.disabled = false;
-                btn.innerHTML = 'Simpan Data (Untuk Disambung Staf)';
+                btn.innerHTML = 'Simpan Data (Untuk Disambung Technician)';
             });
         }
 
         // ==========================================
-        // FUNGSI FORM BASIC (Update Preview dll)
+        // FUNGSI FORM BASIC
         // ==========================================
         function toggleForm() {
             const panel = document.querySelector('.editor-panel');
@@ -1172,16 +1413,20 @@
             if(el) {
                 if (inputId === 'f_date' && value) {
                     try {
-                        const d = new Date(value);
-                        // Set timezone explicitly to GMT+8 (Malaysia/Singapore)
-                        const formatter = new Intl.DateTimeFormat('en-CA', { 
-                            timeZone: 'Asia/Kuala_Lumpur', 
-                            year: 'numeric', 
-                            month: '2-digit', 
-                            day: '2-digit' 
-                        });
-                        value = formatter.format(d);
-                    } catch(e) {}
+                        if (typeof value === 'string' && value.length === 10 && value.includes('-')) {
+                        } else {
+                            const d = new Date(value);
+                            if (!isNaN(d.getTime())) {
+                                const tzDate = new Date(d.toLocaleString("en-US", {timeZone: "Asia/Kuala_Lumpur"}));
+                                const yyyy = tzDate.getFullYear();
+                                const mm = String(tzDate.getMonth() + 1).padStart(2, '0');
+                                const dd = String(tzDate.getDate()).padStart(2, '0');
+                                value = `${yyyy}-${mm}-${dd}`;
+                            }
+                        }
+                    } catch(e) {
+                        console.error("Date parsing error", e);
+                    }
                 }
                 el.value = value || '';
                 const event = new Event('input', { bubbles: true });
@@ -1216,7 +1461,7 @@
         setTimeout(applyPreviewScale, 300);
 
         // ==========================================
-        // CANVAS TANDATANGAN STAF
+        // CANVAS TANDATANGAN TECHNICIAN
         // ==========================================
         const sCanvas = document.getElementById('staffCanvas');
         const sCtx = sCanvas.getContext('2d');
@@ -1256,7 +1501,7 @@
 
         function clearStaffCanvas() {
             sCtx.clearRect(0, 0, sCanvas.width, sCanvas.height);
-            document.getElementById('preview-staff-sig').innerHTML = "(Tandatangan Staf)";
+            document.getElementById('preview-staff-sig').innerHTML = "(Tandatangan Technician)";
         }
 
         function updateStaffSigPreview() {
@@ -1267,27 +1512,23 @@
         }
 
         // ==========================================
-        // IMAGE UPLOAD DENGAN DESCRIPTION
+        // IMAGE UPLOAD (DINAMIK TANPA HAD & CHUNKING)
         // ==========================================
-        let uploadedImages = []; // Array of object: { src: string, desc: string }
+        let uploadedImages = []; // Format: { src: base64/URL, desc: string, id: string/null }
         
         function handleImageUpload(input) {
             const files = Array.from(input.files);
             if (!files.length) return;
-            const availableSlots = 6 - uploadedImages.length;
-            if (availableSlots <= 0) { customAlert("Maksimum 6 gambar telah dicapai."); input.value = ""; return; }
-            const filesToProcess = files.slice(0, availableSlots);
-            if (files.length > availableSlots) customAlert(`Hanya ${availableSlots} gambar ditambah.`);
-
+            
             let loadedCount = 0;
-            filesToProcess.forEach(file => {
+            files.forEach(file => {
                 const reader = new FileReader();
                 reader.onload = function(e) {
-                    uploadedImages.push({ src: e.target.result, desc: '' });
+                    uploadedImages.push({ src: e.target.result, desc: '', id: null });
                     loadedCount++;
-                    if (loadedCount === filesToProcess.length) {
+                    if (loadedCount === files.length) {
                         renderEditorImages();
-                        renderImages();
+                        renderImages(); // Menjana muka surat mengikut gandaan 6
                     }
                 };
                 reader.readAsDataURL(file);
@@ -1302,7 +1543,7 @@
                 const div = document.createElement('div');
                 div.className = 'editor-image-item';
                 div.innerHTML = `
-                    <img src="${imgObj.src}">
+                    <img src="${imgObj.src}" crossorigin="anonymous">
                     <input type="text" placeholder="Nota gambar..." value="${imgObj.desc}" oninput="updateImageDesc(${index}, this.value)">
                     <button type="button" onclick="removeImage(${index})" title="Padam">X</button>
                 `;
@@ -1315,26 +1556,62 @@
             renderImages();
         }
 
+        // FUNGSI CHUNKING & PEMBINAAN MUKA SURAT GAMBAR DINAMIK
         function renderImages() {
-            const grid = document.getElementById('photo-preview-grid');
-            grid.innerHTML = '';
-            for (let i = 0; i < 6; i++) {
-                const slot = document.createElement('div');
-                slot.className = 'photo-slot';
-                if (uploadedImages[i]) {
-                    slot.innerHTML = `
-                        <div class="photo-img-wrapper">
-                            <img src="${uploadedImages[i].src}">
-                        </div>
-                        <div class="photo-desc-preview">${uploadedImages[i].desc || '- Tiada Nota -'}</div>
-                    `;
+            const container = document.getElementById('dynamic-image-pages-container');
+            container.innerHTML = ''; // Kosongkan container dahulu
+
+            // Kira jumlah muka surat gambar (minima 1 walaupun kosong)
+            const totalImagePages = Math.max(1, Math.ceil(uploadedImages.length / 6));
+            // Total Pages = 2 (Page 1 Details + Page 2 Signatures) + Page Gambar
+            const totalPages = 2 + totalImagePages;
+
+            // Update Pagination untuk Muka Surat 1 dan 2
+            document.getElementById('page1-footer').innerText = `Page 1 of ${totalPages}`;
+            document.getElementById('page2-footer').innerText = `Page 2 of ${totalPages}`;
+
+            // Gelung (Loop) untuk membina setiap muka surat gambar
+            for (let pageIndex = 0; pageIndex < totalImagePages; pageIndex++) {
+                const pageDiv = document.createElement('div');
+                pageDiv.className = 'a4-page';
+
+                let gridHTML = '<div class="photo-grid">';
+                
+                if (uploadedImages.length === 0) {
+                    // Jika tiada gambar langsung, tunjukkan mesej kosong yang kemas
+                    gridHTML += `<div style="grid-column: span 2; text-align: center; color: #7f8c8d; padding-top: 50px; font-style: italic;">- Tiada lampiran gambar disertakan -</div>`;
                 } else {
-                    slot.innerHTML = `
-                        <div class="photo-img-wrapper"><div class="photo-placeholder">No Image</div></div>
-                        <div class="photo-desc-preview"></div>
-                    `;
+                    // Masukkan sehingga 6 gambar untuk page semasa
+                    for (let i = 0; i < 6; i++) {
+                        const imgIndex = (pageIndex * 6) + i;
+                        if (uploadedImages[imgIndex]) {
+                            gridHTML += `
+                                <div class="photo-slot">
+                                    <div class="photo-img-wrapper">
+                                        <img src="${uploadedImages[imgIndex].src}" crossorigin="anonymous">
+                                    </div>
+                                    <div class="photo-desc-preview">${uploadedImages[imgIndex].desc || '- Tiada Nota -'}</div>
+                                </div>
+                            `;
+                        } else {
+                            // Jika tak cukup 6, sediakan slot 'invisible' supaya grid maintain tapi nampak clean
+                            gridHTML += `<div style="border: none; background: transparent;"></div>`;
+                        }
+                    }
                 }
-                grid.appendChild(slot);
+                gridHTML += '</div>'; // Tutup grid gambar
+
+                // Set footer untuk muka surat gambar semasa (Page 3, Page 4, dan seterusnya)
+                const footerHTML = `
+                    <div class="page-footer">
+                        <div>© 2026 All Right Reserved by <span class="Voltake-btn">Voltake</span></div>
+                        <div>Page ${3 + pageIndex} of ${totalPages}</div>
+                    </div>
+                `;
+
+                // Cantumkan semula elemen ke dalam muka surat ini (Header + Tajuk + Grid + Footer)
+                pageDiv.innerHTML = templateHeaderHTML + '<h1 class="report-title">Site Photos / Lampiran Gambar</h1>' + gridHTML + footerHTML;
+                container.appendChild(pageDiv);
             }
             setTimeout(applyPreviewScale, 300);
         }
@@ -1348,6 +1625,24 @@
             uploadedImages = []; 
             renderEditorImages();
             renderImages(); 
+        }
+
+        // ==========================================
+        // FUNGSI NAMA FAIL DINAMIK (LOCATION_CLIENT_TARIKH)
+        // ==========================================
+        function getDynamicFileName(type) {
+            let loc = document.getElementById('f_loc').value.split(',')[0].trim().replace(/\s+/g, '_').replace(/[^a-zA-Z0-9_]/g, '');
+            let client = document.getElementById('f_client').value.trim().replace(/\s+/g, '_').replace(/[^a-zA-Z0-9_]/g, '');
+            let dateVal = document.getElementById('f_date').value;
+            let d = '';
+            if (dateVal) {
+                let parts = dateVal.split('-');
+                if (parts.length === 3) d = parts[2] + parts[1] + parts[0];
+            }
+            loc = loc || 'Location';
+            client = client || 'Client';
+            d = d || 'Date';
+            return `${loc}_${client}_${d}_${type}.pdf`;
         }
 
         // ==========================================
@@ -1370,8 +1665,10 @@
             
             element.style.gap = '0px'; element.style.transform = 'none'; element.style.marginBottom = '0px';
 
+            const dynamicName = getDynamicFileName('Draft');
+
             const opt = {
-                margin: 0, filename: 'Laporan_Kerja_Voltake.pdf', image: { type: 'jpeg', quality: 0.98 },
+                margin: 0, filename: dynamicName, image: { type: 'jpeg', quality: 0.98 },
                 html2canvas: { scale: 2, useCORS: true, scrollY: 0 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
             };
 
@@ -1393,7 +1690,7 @@
                 document.body.classList.remove('is-exporting');
                 element.style.gap = originalGap || '30px'; element.style.transform = originalTransform; element.style.marginBottom = originalMarginBottom;
                 pages.forEach((page, i) => { page.style.height = originalStyles[i].height; page.style.overflow = originalStyles[i].overflow; });
-                customAlert("Ralat semasa menjana PDF. Sila cuba lagi.");
+                alert("Ralat semasa menjana PDF. Sila cuba lagi.");
                 btn.innerHTML = originalText; btn.disabled = false;
                 applyPreviewScale();
             });
@@ -1418,8 +1715,10 @@
             });
             element.style.gap = '0px'; element.style.transform = 'none'; element.style.marginBottom = '0px';
 
+            const dynamicName = getDynamicFileName('Draft');
+
             const opt = {
-                margin: 0, filename: 'Laporan_Kerja_Voltake.pdf', image: { type: 'jpeg', quality: 0.98 },
+                margin: 0, filename: dynamicName, image: { type: 'jpeg', quality: 0.98 },
                 html2canvas: { scale: 2, useCORS: true, scrollY: 0 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
             };
 
@@ -1455,16 +1754,18 @@
                     clientCompany: document.getElementById('f_client').value || '',
                     title: document.getElementById('f_title').value || '',
                     location: document.getElementById('f_loc').value || '',
-                    timeIn: document.getElementById('f_in').value || '',
-                    timeOut: document.getElementById('f_out').value || '',
+                    
+                    timeIn: document.getElementById('v_in').innerText || '',   
+                    timeOut: document.getElementById('v_out').innerText || '', 
+                    
                     picName: document.getElementById('f_pic_name').value || '',
                     picPhone: document.getElementById('f_pic_phone').value || '',
                     signClientName: document.getElementById('f_sign_client_name').value || '',
                     signClientPos: document.getElementById('f_sign_client_pos').value || '',
                     signClientPhone: document.getElementById('f_sign_client_phone').value || '',
-                    jobDesc: document.getElementById('f_job_desc').value || '',
+                    jobDesc: getCombinedJobDescString(), 
                     issue: document.getElementById('f_issue').value || '',
-                    remarks: document.getElementById('f_remark').value || '',
+                    remarks: document.getElementById('v_remark').innerText || '',
                     staffName: document.getElementById('f_staff_name').value || '',
                     staffPosition: document.getElementById('f_staff_pos').value || '',
                     staffSignatureBase64: staffSigBase64,
@@ -1513,13 +1814,8 @@
             const el = document.createElement('textarea');
             el.value = window.currentApprovalTemplate;
             document.body.appendChild(el); el.select();
-            try { 
-                document.execCommand('copy'); 
-                customAlert('Teks berjaya disalin! Sila paste kepada klien anda.'); 
-            } 
-            catch(err) { 
-                customAlert('Sistem tidak dapat menyalin teks secara automatik. Sila copy pautan di atas secara manual.'); 
-            }
+            try { document.execCommand('copy'); alert('Teks berjaya disalin! Sila paste kepada klien anda.'); } 
+            catch(err) { alert('Sistem tidak dapat menyalin teks secara automatik. Sila copy pautan di atas secara manual.'); }
             document.body.removeChild(el);
         }
 
@@ -1530,9 +1826,12 @@
             if (phone.startsWith('0')) phone = '6' + phone;
             const encodedText = encodeURIComponent(window.currentApprovalTemplate);
             let waUrl = phone ? `https://wa.me/${phone}?text=${encodedText}` : `https://api.whatsapp.com/send?text=${encodedText}`;
-            if(!phone) customAlert("Sila isi 'PIC Client Phone (Untuk Sign Bawah)' pada form untuk hantar secara automatik. Sistem akan membuka WhatsApp Web secara umum.");
+            if(!phone) alert("Sila isi 'PIC Client Phone (Untuk Sign Bawah)' pada form untuk hantar secara automatik. Sistem akan membuka WhatsApp Web secara umum.");
             window.open(waUrl, '_blank');
         }
     </script>
 </body>
 </html>
+
+
+
